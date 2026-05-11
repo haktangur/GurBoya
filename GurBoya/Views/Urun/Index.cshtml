@@ -1,0 +1,80 @@
+@model List<GurBoya.Models.Urun>
+@{
+    ViewData["Title"] = "Ürünler";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Ürünler</h2>
+    <div>
+        @if (ViewBag.KritikStokSayisi > 0)
+        {
+            <span class="badge bg-danger me-2">⚠ @ViewBag.KritikStokSayisi kritik stok</span>
+        }
+        <a asp-action="Create" class="btn btn-primary">+ Yeni Ürün</a>
+    </div>
+</div>
+
+@if (TempData["Basari"] != null)
+{
+    <div class="alert alert-success">@TempData["Basari"]</div>
+}
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input type="text" name="arama" value="@ViewBag.Arama" class="form-control" placeholder="Ürün adı veya kodu...">
+    </div>
+    <div class="col-md-4">
+        <select name="kategoriId" asp-items="ViewBag.Kategoriler" class="form-select">
+            <option value="">Tüm Kategoriler</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-outline-secondary w-100">Filtrele</button>
+    </div>
+</form>
+
+<table class="table table-hover table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Kod</th>
+            <th>Ürün Adı</th>
+            <th>Kategori</th>
+            <th>Birim</th>
+            <th class="text-end">Alış</th>
+            <th class="text-end">Satış</th>
+            <th class="text-end">Stok</th>
+            <th class="text-center">İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var urun in Model)
+        {
+            var stokClass = urun.StokMiktari <= urun.KritikStokSeviyesi ? "table-danger" : "";
+            <tr class="@stokClass">
+                <td>@urun.Kod</td>
+                <td>@urun.Ad</td>
+                <td>@urun.Kategori?.Ad</td>
+                <td>@urun.Birim</td>
+                <td class="text-end">@urun.AlisFiyati.ToString("N2") ₺</td>
+                <td class="text-end">@urun.SatisFiyati.ToString("N2") ₺</td>
+                <td class="text-end">
+                    @urun.StokMiktari.ToString("N3")
+                    @if (urun.StokMiktari <= urun.KritikStokSeviyesi)
+                    {
+                        <span class="text-danger fw-bold">⚠</span>
+                    }
+                </td>
+                <td class="text-center">
+                    <a asp-action="Detail" asp-route-id="@urun.Id" class="btn btn-sm btn-info">Detay</a>
+                    <a asp-action="Edit" asp-route-id="@urun.Id" class="btn btn-sm btn-warning">Düzenle</a>
+                    <form asp-action="Delete" method="post" class="d-inline"
+                          onsubmit="return confirm('@urun.Ad silinsin mi?')">
+                        <input type="hidden" name="id" value="@urun.Id" />
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -6,7 +6,7 @@ public class Urun
     public string Kod { get; set; } = null!;
     public string Ad { get; set; } = null!;
     public int KategoriId { get; set; }
-    public Kategori Kategori { get; set; } = null!;
+    public Kategori? Kategori { get; set; }
     public decimal AlisFiyati { get; set; }
     public decimal SatisFiyati { get; set; }
     public decimal StokMiktari { get; set; }

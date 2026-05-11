@@ -1,0 +1,102 @@
+@model GurBoya.Models.Urun
+@{
+    ViewData["Title"] = Model.Ad;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>@Model.Ad</h2>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Düzenle</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Stok</h6>
+                <h3 class="@(Model.StokMiktari <= Model.KritikStokSeviyesi ? "text-danger" : "text-success")">
+                    @Model.StokMiktari.ToString("N3") @Model.Birim
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Alış Fiyatı</h6>
+                <h3>@Model.AlisFiyati.ToString("N2") ₺</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Satış Fiyatı</h6>
+                <h3>@Model.SatisFiyati.ToString("N2") ₺</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Kar Marjı</h6>
+                <h3 class="text-primary">
+                    @(Model.AlisFiyati > 0
+                        ? ((Model.SatisFiyati - Model.AlisFiyati) / Model.AlisFiyati * 100).ToString("N1")
+                        : "0") %
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Stok Hareketi Ekle</div>
+    <div class="card-body">
+        <form asp-action="StokGuncelle" method="post" class="row g-2">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="urunId" value="@Model.Id" />
+            <div class="col-md-3">
+                <select name="tip" class="form-select">
+                    <option value="0">Giriş</option>
+                    <option value="1">Çıkış</option>
+                    <option value="2">Sayım</option>
+                    <option value="3">İade</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="miktar" step="0.001" min="0.001" class="form-control" placeholder="Miktar" required />
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="not" class="form-control" placeholder="Not (opsiyonel)" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<h5>Stok Hareketleri</h5>
+<table class="table table-sm table-bordered">
+    <thead class="table-secondary">
+        <tr>
+            <th>Tarih</th>
+            <th>Tip</th>
+            <th class="text-end">Miktar</th>
+            <th>Not</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var h in Model.StokHareketleri.OrderByDescending(x => x.Tarih))
+        {
+            <tr>
+                <td>@h.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@h.Tip</td>
+                <td class="text-end">@h.Miktar.ToString("N3")</td>
+                <td>@h.Not</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary mt-2">← Listeye Dön</a>

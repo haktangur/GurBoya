@@ -1,9 +1,13 @@
 using GurBoya.Data;
 using Microsoft.EntityFrameworkCore;
+using GurBoya.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IUrunService, UrunService>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
