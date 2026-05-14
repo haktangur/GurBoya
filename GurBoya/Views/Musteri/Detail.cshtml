@@ -1,0 +1,70 @@
+@model GurBoya.Models.Musteri
+@{
+    ViewData["Title"] = Model.Ad;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>@Model.Ad</h2>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Düzenle</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Bakiye</h6>
+                <h3 class="@(Model.Bakiye < 0 ? "text-danger" : "text-success")">
+                    @Model.Bakiye.ToString("N2") ₺
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Toplam Sipariş</h6>
+                <h3>@Model.Siparisler.Count</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Telefon</h6>
+                <h5 class="mt-2">@(Model.Telefon ?? "-")</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Kayıt Tarihi</h6>
+                <h5 class="mt-2">@Model.OlusturmaTarihi.ToString("dd.MM.yyyy")</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Siparisler.Any())
+{
+    <h5>Siparişler</h5>
+    <table class="table table-sm table-bordered">
+        <thead class="table-secondary">
+            <tr>
+                <th>Tarih</th>
+                <th>Durum</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model.Siparisler.OrderByDescending(x => x.Tarih))
+            {
+                <tr>
+                    <td>@s.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@s.Durum</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-action="Index" class="btn btn-secondary mt-2">← Listeye Dön</a>

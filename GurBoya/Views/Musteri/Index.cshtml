@@ -1,0 +1,58 @@
+@model List<GurBoya.Models.Musteri>
+@{
+    ViewData["Title"] = "Müşteriler";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Müşteriler</h2>
+    <a asp-action="Create" class="btn btn-primary">+ Yeni Müşteri</a>
+</div>
+
+@if (TempData["Basari"] != null)
+{
+    <div class="alert alert-success">@TempData["Basari"]</div>
+}
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input type="text" name="arama" value="@ViewBag.Arama" class="form-control" placeholder="Ad veya telefon...">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-secondary w-100">Ara</button>
+    </div>
+</form>
+
+<table class="table table-hover table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Ad</th>
+            <th>Telefon</th>
+            <th>Adres</th>
+            <th class="text-end">Bakiye</th>
+            <th class="text-center">İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.Ad</td>
+                <td>@m.Telefon</td>
+                <td>@m.Adres</td>
+                <td class="text-end @(m.Bakiye < 0 ? "text-danger" : m.Bakiye > 0 ? "text-success" : "")">
+                    @m.Bakiye.ToString("N2") ₺
+                </td>
+                <td class="text-center">
+                    <a asp-action="Detail" asp-route-id="@m.Id" class="btn btn-sm btn-info">Detay</a>
+                    <a asp-action="Edit" asp-route-id="@m.Id" class="btn btn-sm btn-warning">Düzenle</a>
+                    <form asp-action="Delete" method="post" class="d-inline"
+                          onsubmit="return confirm('@m.Ad silinsin mi?')">
+                        <input type="hidden" name="id" value="@m.Id" />
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

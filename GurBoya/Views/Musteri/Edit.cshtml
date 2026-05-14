@@ -1,0 +1,35 @@
+@model GurBoya.Models.Musteri
+@{
+    ViewData["Title"] = "Müşteri Düzenle";
+}
+
+<h2>Müşteri Düzenle</h2>
+<hr />
+
+<form asp-action="Edit" method="post" class="row g-3">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="OlusturmaTarihi" type="hidden" />
+
+    <div class="col-md-6">
+        <label asp-for="Ad" class="form-label">Ad Soyad</label>
+        <input asp-for="Ad" class="form-control" />
+        <span asp-validation-for="Ad" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Telefon" class="form-label">Telefon</label>
+        <input asp-for="Telefon" class="form-control" />
+    </div>
+    <div class="col-12">
+        <label asp-for="Adres" class="form-label">Adres</label>
+        <textarea asp-for="Adres" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Bakiye" class="form-label">Bakiye (₺)</label>
+        <input asp-for="Bakiye" class="form-control" type="number" step="0.01" />
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-warning">Güncelle</button>
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </div>
+</form>
