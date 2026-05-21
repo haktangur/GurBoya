@@ -1,0 +1,93 @@
+@model List<GurBoya.Models.KasaHareketi>
+@{
+    ViewData["Title"] = "Kasa";
+}
+
+<h2>Kasa</h2>
+
+@if (TempData["Basari"] != null)
+{
+    <div class="alert alert-success">@TempData["Basari"]</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center border-success">
+            <div class="card-body">
+                <h6 class="text-muted">Bugünkü Ciro</h6>
+                <h3 class="text-success">@Convert.ToDecimal(ViewBag.GunlukCiro).ToString("N2") ₺</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-primary">
+            <div class="card-body">
+                <h6 class="text-muted">Kasa Bakiyesi</h6>
+                <h3 class="text-primary">@Convert.ToDecimal(ViewBag.ToplamBakiye).ToString("N2") ₺</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="text-muted">Dönem Gelir</h6>
+                <h3 class="text-success">@Convert.ToDecimal(ViewBag.ToplamGelir).ToString("N2") ₺</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="text-muted">Dönem Gider</h6>
+                <h3 class="text-danger">@Convert.ToDecimal(ViewBag.ToplamGider).ToString("N2") ₺</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <form method="get" class="row g-2">
+        <div class="col-auto">
+            <input type="date" name="baslangic" value="@ViewBag.Baslangic" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <input type="date" name="bitis" value="@ViewBag.Bitis" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-secondary">Filtrele</button>
+        </div>
+    </form>
+    <a asp-action="Create" class="btn btn-primary">+ Manuel Hareket</a>
+</div>
+
+<table class="table table-hover table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Tarih</th>
+            <th>Tür</th>
+            <th>Ödeme</th>
+            <th>Müşteri</th>
+            <th>Açıklama</th>
+            <th class="text-end">Tutar</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var h in Model)
+        {
+            <tr>
+                <td>@h.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>
+                    <span class="badge bg-@(h.Tip == GurBoya.Models.HareketTipi.Gelir ? "success" : "danger")">
+                        @h.Tip
+                    </span>
+                </td>
+                <td>@h.OdemeTuru</td>
+                <td>@(h.Musteri?.Ad ?? "-")</td>
+                <td>@h.Aciklama</td>
+                <td class="text-end @(h.Tip == GurBoya.Models.HareketTipi.Gelir ? "text-success" : "text-danger")">
+                    @(h.Tip == GurBoya.Models.HareketTipi.Gelir ? "+" : "-")@h.Tutar.ToString("N2") ₺
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

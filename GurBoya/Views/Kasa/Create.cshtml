@@ -1,0 +1,45 @@
+@{
+    ViewData["Title"] = "Manuel Kasa Hareketi";
+}
+
+<h2>Manuel Kasa Hareketi</h2>
+<hr />
+
+<form asp-action="Create" method="post" class="row g-3">
+    @Html.AntiForgeryToken()
+
+    <div class="col-md-4">
+        <label class="form-label">Hareket Türü</label>
+        <select name="Tip" class="form-select">
+            <option value="0">Gelir</option>
+            <option value="1">Gider</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Ödeme Türü</label>
+        <select name="OdemeTuru" class="form-select">
+            <option value="0">Nakit</option>
+            <option value="1">Kredi Kartı</option>
+            <option value="2">Havale</option>
+            <option value="3">Veresiye</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Tutar (₺)</label>
+        <input type="number" name="Tutar" class="form-control" step="0.01" min="0" required />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Müşteri (opsiyonel)</label>
+        <select name="MusteriId" asp-items="ViewBag.Musteriler" class="form-select">
+            <option value="">Seçiniz</option>
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Açıklama</label>
+        <input type="text" name="Aciklama" class="form-control" placeholder="Kira, elektrik, mal alımı..." />
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Kaydet</button>
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </div>
+</form>

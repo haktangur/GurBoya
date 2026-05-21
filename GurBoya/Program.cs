@@ -8,6 +8,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUrunService, UrunService>();
 builder.Services.AddScoped<IMusteriService, MusteriService>();
 builder.Services.AddScoped<ISiparisService, SiparisService>();
+builder.Services.AddScoped<IKasaService, KasaService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
