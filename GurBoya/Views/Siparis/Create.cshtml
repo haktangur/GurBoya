@@ -1,0 +1,128 @@
+@{
+    ViewData["Title"] = "Yeni Sipariş";
+    var urunler = ViewBag.Urunler as List<GurBoya.Models.Urun>;
+}
+
+<h2>Yeni Sipariş</h2>
+<hr />
+
+@if (TempData["Hata"] != null)
+{
+    <div class="alert alert-danger">@TempData["Hata"]</div>
+}
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-4">
+            <label class="form-label">Müşteri</label>
+            <select name="musteriId" asp-items="ViewBag.Musteriler" class="form-select">
+                <option value="">Perakende (Kayıtsız)</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Ödeme Türü</label>
+            <select name="odemeTuru" class="form-select">
+                <option value="Nakit">Nakit</option>
+                <option value="KrediKarti">Kredi Kartı</option>
+                <option value="Havale">Havale</option>
+                <option value="Veresiye">Veresiye</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Not</label>
+            <input type="text" name="not" class="form-control" placeholder="Opsiyonel..." />
+        </div>
+    </div>
+
+    <h5>Ürünler</h5>
+    <table class="table table-bordered" id="urunTablosu">
+        <thead class="table-secondary">
+            <tr>
+                <th>Ürün</th>
+                <th>Birim Fiyat</th>
+                <th>Miktar</th>
+                <th>İndirim %</th>
+                <th>Toplam</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="kalemler">
+            <tr id="satirSablon" class="kalem-satir">
+                <td>
+                    <select name="urunId" class="form-select urun-sec">
+                        <option value="0">Seçiniz</option>
+                        @foreach (var u in urunler!)
+                        {
+                            <option value="@u.Id" data-fiyat="@u.SatisFiyati" data-stok="@u.StokMiktari" data-birim="@u.Birim">
+                                @u.Ad (@u.StokMiktari.ToString("N2") @u.Birim)
+                            </option>
+                        }
+                    </select>
+                </td>
+                <td class="birim-fiyat align-middle">-</td>
+                <td><input type="number" name="miktar" class="form-control miktar-input" step="0.001" min="0.001" value="1" /></td>
+                <td><input type="number" name="indirim" class="form-control indirim-input" step="0.01" min="0" max="100" value="0" /></td>
+                <td class="satir-toplam align-middle">-</td>
+                <td><button type="button" class="btn btn-sm btn-danger satir-sil">✕</button></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" class="text-end fw-bold">Genel Toplam:</td>
+                <td id="genelToplam" class="fw-bold">0.00 ₺</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <button type="button" class="btn btn-outline-primary mb-3" id="satirEkle">+ Ürün Ekle</button>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Siparişi Tamamla</button>
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </div>
+</form>
+
+<script>
+    function hesapla() {
+        let toplam = 0;
+        document.querySelectorAll('.kalem-satir').forEach(satir => {
+            const fiyat = parseFloat(satir.querySelector('.urun-sec')?.selectedOptions[0]?.dataset.fiyat || 0);
+            const miktar = parseFloat(satir.querySelector('.miktar-input')?.value || 0);
+            const indirim = parseFloat(satir.querySelector('.indirim-input')?.value || 0);
+            const satirToplam = fiyat * miktar * (1 - indirim / 100);
+            satir.querySelector('.birim-fiyat').textContent = fiyat.toFixed(2) + ' ₺';
+            satir.querySelector('.satir-toplam').textContent = satirToplam.toFixed(2) + ' ₺';
+            toplam += satirToplam;
+        });
+        document.getElementById('genelToplam').textContent = toplam.toFixed(2) + ' ₺';
+    }
+
+    document.addEventListener('change', e => {
+        if (e.target.matches('.urun-sec, .miktar-input, .indirim-input')) hesapla();
+    });
+    document.addEventListener('input', e => {
+        if (e.target.matches('.miktar-input, .indirim-input')) hesapla();
+    });
+
+    document.getElementById('satirEkle').addEventListener('click', () => {
+        const yeni = document.querySelector('.kalem-satir').cloneNode(true);
+        yeni.querySelector('.urun-sec').value = '0';
+        yeni.querySelector('.miktar-input').value = '1';
+        yeni.querySelector('.indirim-input').value = '0';
+        yeni.querySelector('.birim-fiyat').textContent = '-';
+        yeni.querySelector('.satir-toplam').textContent = '-';
+        document.getElementById('kalemler').appendChild(yeni);
+    });
+
+    document.addEventListener('click', e => {
+        if (e.target.matches('.satir-sil')) {
+            if (document.querySelectorAll('.kalem-satir').length > 1) {
+                e.target.closest('.kalem-satir').remove();
+                hesapla();
+            }
+        }
+    });
+</script>

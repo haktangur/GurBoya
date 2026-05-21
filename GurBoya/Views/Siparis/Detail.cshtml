@@ -1,0 +1,101 @@
+@model GurBoya.Models.Siparis
+@{
+    ViewData["Title"] = $"Sipariş #{Model.Id}";
+    var toplamTutar = Model.Kalemler.Sum(k => k.Miktar * k.BirimFiyat * (1 - k.IndirimYuzde / 100));
+    var durumClass = Model.Durum == GurBoya.Models.SiparisDurumu.Tamamlandi ? "success" :
+                     Model.Durum == GurBoya.Models.SiparisDurumu.Iptal ? "danger" : "warning";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Sipariş #@Model.Id</h2>
+    <span class="badge bg-@durumClass fs-6">@Model.Durum</span>
+</div>
+
+@if (TempData["Basari"] != null)
+{
+    <div class="alert alert-success">@TempData["Basari"]</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Müşteri</h6>
+                <h5 class="mt-2">@(Model.Musteri?.Ad ?? "Perakende")</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Tarih</h6>
+                <h5 class="mt-2">@Model.Tarih.ToString("dd.MM.yyyy HH:mm")</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Toplam Tutar</h6>
+                <h3 class="text-success">@toplamTutar.ToString("N2") ₺</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Ödeme</h6>
+                <h5 class="mt-2">@(Model.KasaHareketleri.FirstOrDefault()?.OdemeTuru.ToString() ?? "-")</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h5>Ürünler</h5>
+<table class="table table-bordered">
+    <thead class="table-secondary">
+        <tr>
+            <th>Ürün</th>
+            <th class="text-end">Birim Fiyat</th>
+            <th class="text-end">Miktar</th>
+            <th class="text-end">İndirim</th>
+            <th class="text-end">Toplam</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var k in Model.Kalemler)
+        {
+            var satirToplam = k.Miktar * k.BirimFiyat * (1 - k.IndirimYuzde / 100);
+            <tr>
+                <td>@k.Urun?.Ad</td>
+                <td class="text-end">@k.BirimFiyat.ToString("N2") ₺</td>
+                <td class="text-end">@k.Miktar.ToString("N3")</td>
+                <td class="text-end">%@k.IndirimYuzde</td>
+                <td class="text-end">@satirToplam.ToString("N2") ₺</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="4" class="text-end fw-bold">Genel Toplam:</td>
+            <td class="text-end fw-bold text-success">@toplamTutar.ToString("N2") ₺</td>
+        </tr>
+    </tfoot>
+</table>
+
+@if (Model.Not != null)
+{
+    <p><strong>Not:</strong> @Model.Not</p>
+}
+
+@if (Model.Durum != GurBoya.Models.SiparisDurumu.Iptal)
+{
+    <form asp-action="IptalEt" method="post" class="d-inline"
+          onsubmit="return confirm('Sipariş iptal edilsin mi? Stoklar geri yüklenecek.')">
+        <input type="hidden" name="id" value="@Model.Id" />
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-danger">Siparişi İptal Et</button>
+    </form>
+}
+
+<a asp-action="Index" class="btn btn-secondary ms-2">← Listeye Dön</a>

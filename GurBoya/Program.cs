@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUrunService, UrunService>();
 builder.Services.AddScoped<IMusteriService, MusteriService>();
+builder.Services.AddScoped<ISiparisService, SiparisService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
