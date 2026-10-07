@@ -1,0 +1,51 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+!.env.*.example
+secrets/
+*.pem
+*.key
+appsettings.Local.json
+appsettings.*.Local.json
+
+# Dependencies and build outputs
+node_modules/
+bin/
+obj/
+dist/
+build/
+coverage/
+.vite/
+.next/
+
+# IDE and OS
+.idea/
+.vs/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Logs, temporary data and private notes
+*.log
+logs/
+.cache/
+__pycache__/
+*.pyc
+.tmp/
+tmp/
+.local-notes/
+
+# Local database files and backups
+.pgdata/
+pgdata/
+backups/
+*.backup
+*.dump
+*.bak
+*.mdf
+*.ldf
+*.db
+*.sqlite
+*.sqlite3
