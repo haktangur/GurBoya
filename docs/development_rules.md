@@ -16,7 +16,7 @@ Stok/finans işlemleri gerçek PostgreSQL üzerinde entegrasyon testleri gerekti
 
 Yerel main dalı temel; yeni iş için kısa feature/chore/docs dalı tercih edilir. Küçük mantıksal commit'ler: docs:, chore:, feat:, fix:, test:, refactor:. Commit öncesi diff'i incele, sırları ve gereksiz dosyaları kontrol et, uygun testleri çalıştır, belgeleri güncelle. Kullanıcıya ait değişiklikleri sessizce commit'e katma. Kimlik ayarlı değilse kullanıcı adına kimlik uydurma.
 
-GitHub remote henüz yok; kullanıcı hesap/depo bilgisi verilince bağlanır. Push, PR ve CI ancak bağlantı kurulunca uygulanır. Uzak repo oluşturulmuş veya push yapılmış gibi raporlama. Force push ve geçmiş silme açık yetki gerektirir. Kod incelemesi/check'ler sağlanmadan canlı dağıtım tamamlandı sayılmaz.
+GitHub origin: https://github.com/haktangur/GurBoya.git. Kullanıcı doğrulanan proje değişikliklerinin GitHub'a gönderilmesini yetkilendirdi; her görev sonunda ilgili commit'leri çalışılan dala normal push ile gönder, yeni dal için upstream ayarla. Push öncesi uzak değişiklikleri kontrol et; başkasının değişikliklerini ezme. main başlangıç belgeleriyle yayımlandı. PR/CI yapılandırması henüz kurulmadı. Başarılı push'u uzak commit kimliğiyle doğrula; erişim/kimlik veya korumalı dal engelini açıkça bildir. Force push ve geçmiş silme açık yetki gerektirir. Kod incelemesi/check'ler sağlanmadan canlı dağıtım tamamlandı sayılmaz.
 
 Ortak Markdown belgelerinin tamamı, project_context.md ve progress.md dahil sürümlenir. Kişisel notlar .local-notes/, sırlar .env veya güvenli yerel depoda tutulur; örnek ortam dosyası gerçek sır içermez. Ignore dosyası her isimdeki sırrı otomatik bulamaz; diff incelemesi zorunludur.
 

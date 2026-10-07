@@ -15,6 +15,7 @@
 | K09 | Boya ve renk kodu yeterli; pigment stoğu takip edilmeyecek. |
 | K10 | Kutulu boya fiyatı kutu başına. |
 | K11 | PostgreSQL'e geçiş onaylandı; Docker ile Mac ve Windows'ta yerel çalışma hedefi kabul edildi. |
+| K12 | GitHub origin https://github.com/haktangur/GurBoya.git; doğrulanmış değişikliklerin normal push ile gönderilmesi yetkilendirildi. |
 
 K11 gerekçesi: PostgreSQL resmî imajının ARM64 ve AMD64 desteği, M3 üzerinde MSSQL emülasyonu ve ayrı makine ihtiyacını ortadan kaldırır. MSSQL emülasyonu ve uzak geliştirme veritabanı alternatifleri artık aktif plan değildir.
 

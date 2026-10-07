@@ -22,4 +22,4 @@ PostgreSQL'e geçiş kullanıcı tarafından onaylandı. Bu bir çalışan uygul
 
 ## Dosya ve Git düzeni
 
-Şu an yalnızca docs/ belgeleri ve kökte .gitignore bulunur; yerel Git deposu hazırlanmıştır. Compose, örnek ortam dosyası, uygulama ve test klasörleri ihtiyaç oldukça ilk geliştirme görevlerinde eklenecek. Boş frontend/backend klasörleri oluşturulmadı. Gerçek sırlar, veriler ve yedekler Git'e eklenmez. Henüz çalıştırma komutu yok; F1-A sonunda doğrulanmış komutlar buraya yazılacak.
+Şu an yalnızca docs/ belgeleri ve kökte .gitignore bulunur; yerel Git deposu hazırlanmış ve [GitHub reposuna](https://github.com/haktangur/GurBoya) bağlanmıştır. Başlangıç belgeleri main dalına gönderildi. Compose, örnek ortam dosyası, uygulama ve test klasörleri ihtiyaç oldukça ilk geliştirme görevlerinde eklenecek. Boş frontend/backend klasörleri oluşturulmadı. Gerçek sırlar, veriler ve yedekler Git'e eklenmez. Henüz çalıştırma komutu yok; F1-A sonunda doğrulanmış komutlar buraya yazılacak.

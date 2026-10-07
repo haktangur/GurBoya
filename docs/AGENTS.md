@@ -17,7 +17,7 @@ Bu belge kullanıcı isteğiyle docs/ altındadır. Kökten başlayan oturumda o
 - Gerçek sır, yerel DB, yedek veya müşteri verisini Git'e ekleme. Kullanıcı değişikliklerini geri alma. Volume silme, canlı verinin üstüne restore ve uzak Git geçmişini yeniden yazma açık yetki gerektirir.
 - Anlamlı testleri çalıştır; çalışmayan testi başarılı gösterme. Mac testini Windows doğrulaması sayma.
 - Markdown belgelerini docs/ altında tut. Her önemli görev sonunda ilgili tasarım, project_context.md ve progress.md dosyalarını güncelle.
-- Küçük mantıksal Conventional Commits kullan. Commit öncesi diff, sır ve test kontrolü yap. GitHub remote/izin olmadan push yapılmış gibi sunma.
+- Küçük mantıksal Conventional Commits kullan. Commit öncesi diff, sır ve test kontrolü yap. Kullanıcı GitHub push işlemini yetkilendirdi; doğrulanan commit'leri origin deposundaki çalışma dalına normal push ile gönder ve uzak commit kimliğini doğrula. Başarısız gönderimi başarılı gösterme.
 - Mevcut kapsamda ilerle; bir belirsizlik yalnızca sonraki fazı etkiliyorsa mevcut işi durdurma. Riskli önerileri gerekçesiyle eleştir; gereksiz karmaşıklık ekleme.
 
 Dosya keşfi kaynağı: [OpenAI AGENTS.md rehberi](https://developers.openai.com/codex/guides/agents-md).

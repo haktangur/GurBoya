@@ -9,7 +9,9 @@ Son güncelleme: 8 Ekim 2026.
 - PostgreSQL geçişi onaylandı ve aktif mimari/bağlam güncellendi. MSSQL aktif plan olmaktan çıkarıldı.
 - PostgreSQL veri modeli taslağı, fazlar, geliştirme/ChatGPT/Codex kuralları ve başlangıç promptu yazıldı.
 - Bütün Markdown belgeleri docs/ altında toplandı; .gitignore hazırlandı.
-- Yerel Git deposu main dalıyla oluşturuldu. GitHub bağlantısı/push yapılmadı.
+- Yerel Git deposu main dalıyla oluşturuldu. origin https://github.com/haktangur/GurBoya.git olarak bağlandı; başlangıç commit’i 3799495 main dalına başarıyla gönderildi ve upstream ayarlandı.
+
+- Kullanıcının GitHub gönderim yetkisi çalışma kurallarına ve başlangıç promptuna işlendi; sonraki görevler doğrulanmış commit’leri çalışma dalına normal push ile gönderecek.
 
 ## Aktif ve sonraki görev
 
