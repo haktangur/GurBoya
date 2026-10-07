@@ -1,6 +1,6 @@
 # GürBoya — Faz planı
 
-Durum: F1-A başlatılabilir. Diğer fazların ayrıntıları açık iş kuralları ve stack onayına bağlı taslak plandır. Tarih/süre taahhüdü verilmedi.
+Durum: F1-A Mac ARM64 kabul testleri tamamlandı; Windows/AMD64 doğrulaması bekliyor. F1-B teknoloji/hesap yaklaşımı onayı bekliyor. Diğer fazların ayrıntıları açık iş kuralları ve stack onayına bağlı taslak plandır. Tarih/süre taahhüdü verilmedi.
 
 | Faz | Amaç ve kapsam | Bağımlılık | Teknik görev ve bitiş/test koşulu |
 |---|---|---|---|
