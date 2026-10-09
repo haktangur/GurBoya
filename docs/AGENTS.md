@@ -12,7 +12,7 @@ Bu belge kullanıcı isteğiyle docs/ altındadır. Kökten başlayan oturumda o
 - Kod, sınıf ve değişken adları İngilizce; arayüz, hata ve bildirimler Türkçe.
 - Boyada litre ambalaj hacmi, stok kutu adedi, fiyat kutu başınadır. Diğer ürünler adet/gram; pigment modülü yoktur.
 - Onaylı karar ile öneriyi ayır. Büyük mimari değişikliği onaysız yapma; kapsam dışı modül/bağımlılık ekleme.
-- İlk görev F1-A'dır. Uygulama framework'ü onaylanmadan iskelet oluşturma. database.md bir taslaktır; tüm tabloları ilk görevde oluşturma.
+- F1-A ve F1-B tamamlandı; Razor Pages + EF Core + Npgsql onaylıdır. Yeni görevde progress.md ve faz kapılarını esas al. database.md iş modeli taslağıdır; onaylanmamış iş tablolarını topluca oluşturma.
 - İşlem geçmişi silinmez; parasal değerler decimal/numeric; satış/stok tek transaction; tekrar gönderim ve eşzamanlılık korunur.
 - Gerçek sır, yerel DB, yedek veya müşteri verisini Git'e ekleme. Kullanıcı değişikliklerini geri alma. Volume silme, canlı verinin üstüne restore ve uzak Git geçmişini yeniden yazma açık yetki gerektirir.
 - Anlamlı testleri çalıştır; çalışmayan testi başarılı gösterme. Mac testini Windows doğrulaması sayma.

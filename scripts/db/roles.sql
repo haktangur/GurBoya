@@ -1,0 +1,17 @@
+\getenv app_password APP_DB_PASSWORD
+\getenv migration_password MIGRATION_DB_PASSWORD
+BEGIN;
+SELECT 'CREATE ROLE gurboya_migrator LOGIN' WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'gurboya_migrator') \gexec
+SELECT 'CREATE ROLE gurboya_app LOGIN' WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'gurboya_app') \gexec
+ALTER ROLE gurboya_migrator WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD :'migration_password';
+ALTER ROLE gurboya_app WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD :'app_password';
+SELECT format('REVOKE ALL ON DATABASE %I FROM PUBLIC', current_database()) \gexec
+SELECT format('GRANT CONNECT ON DATABASE %I TO gurboya_migrator, gurboya_app', current_database()) \gexec
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+CREATE SCHEMA IF NOT EXISTS app AUTHORIZATION gurboya_migrator;
+CREATE SCHEMA IF NOT EXISTS infrastructure AUTHORIZATION gurboya_migrator;
+GRANT USAGE ON SCHEMA app, infrastructure TO gurboya_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE gurboya_migrator IN SCHEMA app GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO gurboya_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE gurboya_migrator IN SCHEMA app GRANT USAGE, SELECT ON SEQUENCES TO gurboya_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE gurboya_migrator IN SCHEMA infrastructure GRANT SELECT ON TABLES TO gurboya_app;
+COMMIT;

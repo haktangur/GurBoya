@@ -1,6 +1,6 @@
 # GürBoya — PostgreSQL veritabanı taslağı
 
-Durum: Veritabanı teknolojisi onaylı, aşağıdaki ilişkisel model öneridir; şema/migration oluşturulmadı. İş kuralları ilgili fazdan önce netleştirilecek. F1-A yalnızca veritabanı altyapısını kurar; bu belgedeki bütün tabloları oluşturmaz.
+Durum: Veritabanı teknolojisi onaylı, aşağıdaki ilişkisel model öneridir; iş şeması/migration’ları oluşturulmadı. F1-B’de yalnızca altyapı şemaları ve boş başlangıç migration’ı eklendi. İş kuralları ilgili fazdan önce netleştirilecek. F1-A yalnızca veritabanı altyapısını kurar; bu belgedeki bütün tabloları oluşturmaz.
 
 ## Tipler ve ortak kurallar
 
@@ -84,10 +84,20 @@ MVP'de tenant/şube tabloları yoktur. SaaS'a geçişte ayrı DB veya tenant_id 
 
 ## Migration, yedek ve kabul
 
-Şema sürümlenir; uygulama başlatıldığında kontrolsüz veri silme/otomatik reset yok. Migration aracı F1-B'de seçilir. Kullanılmış migration değiştirilmez, yenisi eklenir. Üretim migration'ından önce test edilmiş yedek ve geri dönüş planı gerekir.
+Şema sürümlenir; uygulama başlatıldığında kontrolsüz veri silme/otomatik reset yok. Migration aracı EF Core/dotnet-ef olarak seçildi. Kullanılmış migration değiştirilmez, yenisi eklenir. Üretim migration'ından önce test edilmiş yedek ve geri dönüş planı gerekir.
 
 pg_dump custom format yedeği, pg_restore ile ayrı DB'ye prova önerilir. Rol/izin tanımları ayrıca tekrar kurulabilir olmalıdır; dump tek başına sunucu rollerini kapsamaz. Yedek sonucu ve geri yüklenen satır sayısı/örnek toplamlar doğrulanır. Günlük sıklık öneridir, kayıp hedefi ve harici saklama henüz onaylanmadı.
 
 Kabul örnekleri: 12 kutu giriş−1 satış=11; aynı satış isteğinin tekrarında yine 11; son kutu için iki eşzamanlı satıştan yalnızca biri başarılı; işlem ortasında hata olursa satış/hareket/bakiye değişmez; fiyat 500'den 600'e çıkınca eski 500'lük satış korunur; 0,5 kutu reddedilir; onaylanan hassasiyette gram kabul edilir; satıştan fazla iade reddedilir; hasarlı iade satılabilir stoğu artırmaz; ürün pasifleştirilince geçmiş kayıt görünür; yedekten dönen bakiye hareket toplamını tutar. Bu testler henüz çalıştırılmadı.
 
 Kaynaklar (8 Ekim 2026): [PostgreSQL satır kilitleri](https://www.postgresql.org/docs/current/explicit-locking.html), [yedek ve geri yükleme](https://www.postgresql.org/docs/current/backup-dump.html).
+
+## F1-B uygulanan erişim ve migration altyapısı
+
+- gurboya_admin: ilk PostgreSQL yönetimi ve hesap hazırlama; web'e verilmez.
+- gurboya_migrator: superuser/CREATEDB/CREATEROLE olmayan, app ve infrastructure şemalarının sahibi; açık migration komutunda kullanılır.
+- gurboya_app: CONNECT ve şema USAGE; migrator tarafından oluşturulacak app tablolarında DML, sequence kullanım yetkisi. Şema/DB oluşturamaz, geçici tablo oluşturamaz. infrastructure tablolarını yalnızca okuyabilir; EF geçmişini değiştiremez.
+
+scripts/db/roles.sql transaction içinde roller ve izinleri hazırlar; mevcut volume üzerinde ayrıca çalıştırılabilir. Yeniden çalıştırma parola ayarlarını .env değerlerine getirir, veri/migration silmez. Bu işlem yalnızca projeye ait DB/rollerde kullanılmalıdır. Parola değişiminden sonra web konteynerini yeniden oluştur; .env değişikliği tek başına PostgreSQL parolasını değiştirmez.
+
+İlk InitialInfrastructure migration'ı boş modelin sürümlü başlangıcıdır; yalnızca infrastructure.__EFMigrationsHistory kaydı oluşur. İş tablosu yoktur. Sonraki şema değişiklikleri yeni EF migration dosyalarıyla eklenir. Web hesabı normal açılışta geçmişi okuyup eksik migration varsa hazır olmadığını bildirir. Bakım hizmeti --migrate ile ayrı hesapta MigrateAsync çağırır; üretim bakımından önce incelenmiş migration ve doğrulanmış yedek gerekir.

@@ -1,0 +1,10 @@
+**
+!global.json
+!src/
+!src/GurBoya.Web/
+!src/GurBoya.Web/**
+src/**/bin/
+src/**/obj/
+src/**/.env*
+src/**/appsettings.Local.json
+src/**/appsettings.*.Local.json

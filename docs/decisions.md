@@ -15,6 +15,7 @@
 | K09 | Boya ve renk kodu yeterli; pigment stoğu takip edilmeyecek. |
 | K10 | Kutulu boya fiyatı kutu başına. |
 | K11 | PostgreSQL'e geçiş onaylandı; Docker ile Mac ve Windows'ta yerel çalışma hedefi kabul edildi. |
+| K13 | Kullanıcı ASP.NET Core Razor Pages + EF Core + Npgsql önerisini onayladı ve F1-B geliştirmesine devam edilmesini istedi. |
 | K12 | GitHub origin https://github.com/haktangur/GurBoya.git; doğrulanmış değişikliklerin normal push ile gönderilmesi yetkilendirildi. |
 
 K11 gerekçesi: PostgreSQL resmî imajının ARM64 ve AMD64 desteği, M3 üzerinde MSSQL emülasyonu ve ayrı makine ihtiyacını ortadan kaldırır. MSSQL emülasyonu ve uzak geliştirme veritabanı alternatifleri artık aktif plan değildir.
@@ -27,4 +28,10 @@ Belgeleri sürümleme yaklaşımı: project_context.md ve progress.md dahil büt
 
 ## Karar bekleyenler
 
-Frontend/backend framework'leri ve ORM; tam yazılım sürümleri; kullanıcı hesabı/roller; Windows sürümü ve donanımı; negatif stok; iade ve renklendirme ücreti; KDV/indirim/yuvarlama; cari ve tahsilat ihtiyacı; yedek saklama ve kayıp toleransı. PostgreSQL tekrar seçim beklemiyor.
+Kullanıcı arayüzü ve sunucu stack seçimi K13 ile kesinleşti. Kalanlar: kullanıcı hesabı/roller; Windows sürümü ve donanımı; negatif stok; iade ve renklendirme ücreti; KDV/indirim/yuvarlama; cari ve tahsilat ihtiyacı; yedek saklama ve kayıp toleransı. PostgreSQL tekrar seçim beklemiyor.
+
+## F1-B teknik uygulama seçimleri
+
+.NET SDK 10.0.401, ASP.NET Core runtime 10.0.9, EF Core/dotnet-ef 10.0.9 ve Npgsql EF sağlayıcısı 10.0.3 sabitlendi. SDK/runtime imajlarının çok mimarili digestleri Dockerfile içinde; NuGet bağımlılık grafiği packages.lock.json içinde tutulur. Bunlar onaylanan stack'in uygulama sürümleridir, ayrı kullanıcı iş kuralı kararı değildir.
+
+DB yönetim hesabı, gurboya_migrator ve gurboya_app ayrıldı. Migration açık bakım komutuyla yapılır; web açılışı DDL çalıştırmaz. F1-B yalnızca durum ekranı içerir. Son kullanıcı hesapları/rolleri onaylanmış değildir; mağaza verisi girişinden önce kimlik yaklaşımı netleştirilecek.

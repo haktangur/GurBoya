@@ -1,6 +1,6 @@
 # GürBoya — Yerel web mimarisi
 
-Durum: Yerel web + PostgreSQL + Docker kullanıcı tarafından onaylandı. Framework'ler henüz seçilmedi. F1-A PostgreSQL altyapısı uygulandı; uygulama mimarisinin diğer ayrıntıları öneridir, uygulama iskeleti kurulmadı.
+Durum: Yerel web + PostgreSQL + Docker kullanıcı tarafından onaylandı. Razor Pages + EF Core + Npgsql kullanıcı tarafından onaylandı. F1-A altyapısına F1-B uygulama iskeleti eklendi; iş modülleri henüz yok.
 
 ## Çalışma düzeni
 
@@ -31,9 +31,13 @@ scripts/test-postgres.sh benzersiz test projesinde çalışır; ana kurulumdan a
 
 ## Stack ve modüller
 
-Frontend/backend henüz onaylanmadı. Aday React + TypeScript ve ASP.NET Core; daha sade sunucu taraflı arayüz de karşılaştırılabilir. İlk altyapı işi bu seçimlerden bağımsızdır. Framework ve ORM onayı F1-B'nin ön koşuludur; bu belgeler React veya .NET seçilmiş anlamına gelmez.
+ASP.NET Core Razor Pages + EF Core + Npgsql kullanıcı tarafından onaylandı. Tek src/GurBoya.Web projesinde sunucu tarafında HTML üretilir; tarayıcı DB'ye erişmez. Pages HTTP/sunum katmanı, Data DB erişimi ve migration sorumluluğudur. İş servisleri ilgili fazda eklenecek; genel repository, SPA veya ayrı API dağıtımı eklenmedi.
 
-F1-B için güncel öneri: ASP.NET Core Razor Pages + EF Core + Npgsql. Tek bilgisayardaki form ağırlıklı uygulamada arayüz ve sunucuyu tek projede tutmak bakım/dağıtım yükünü azaltır; gerekirse etkileşimli alanlar küçük JavaScript bileşenleriyle geliştirilebilir. Bu öneri henüz onaylanmadı; uygulama iskeleti kurulmadı. Kaynaklar: [Razor Pages + EF Core](https://learn.microsoft.com/en-us/aspnet/core/data/ef-rp/intro?view=aspnetcore-10.0), [Npgsql PostgreSQL sağlayıcısı](https://www.npgsql.org/efcore/).
+GET /health/live süreç canlılığını; GET /health/ready DB bağlantısını ve uygulanmamış migration bulunmadığını kontrol eder. Hazır değilse 503 ve sabit Türkçe mesaj döner. Ana sayfa aynı durumu gösterir ve yeniden deneme bağlantısı sunar. Yanıtta DB parolası/bağlantı metni/SQL ayrıntıları verilmez. 404 ve beklenmeyen hata sayfaları Türkçedir. Bu fazda yazma uçları ve kullanıcı oturumu yoktur; kimlik ve CSRF gereksinimleri veri girişinden önce uygulanacak.
+
+compose.app.yaml temel Compose dosyasına eklenir: web sadece 127.0.0.1:5080 üzerinden yayımlanır, konteynerde 8080 dinler ve root olmayan .NET kullanıcısıyla çalışır. DB iç ağda kalır. Araç profilindeki db-setup yönetim hesabıyla rol/şema yetkilerini hazırlar; migrate ayrı DDL hesabıyla açıkça çalıştırılır. Web sadece gurboya_app parolasını alır. Açılışta otomatik migration/EnsureCreated/reset yoktur. app şeması iş tabloları için ayrılmıştır; infrastructure şeması migration geçmişini tutar. Başlangıç migration'ı kasıtlı olarak iş tablosu oluşturmaz.
+
+SDK 10.0.401 ve ASP.NET Core 10.0.9 imajları çok mimarili digest ile sabitlendi; registry'de ARM64 ve AMD64 desteği doğrulandı. EF Core/araç 10.0.9, Npgsql sağlayıcısı 10.0.3; NuGet lock dosyası sürümlenir. Hosttaki eski SDK'nın yükseltilmesi gerekmeden konteyner SDK kullanılabilir. Kaynaklar: [Razor Pages + EF Core](https://learn.microsoft.com/en-us/aspnet/core/data/ef-rp/intro?view=aspnetcore-10.0), [Npgsql](https://www.npgsql.org/efcore/), [EF migration uygulama](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying).
 
 Öneri modüler monolit: katalog, stok, satış ve raporlama ayrı sorumluluklar; tek dağıtılabilir uygulama. Mikroservis, mesaj kuyruğu, Redis, Kubernetes veya çok cihazlı offline senkronizasyon gereksinimi yoktur. İlk kurulum tek işletmedir; SaaS/çok şube ileride ayrı tasarım ve migration gerektirir. Henüz tenant izolasyonu mevcut değildir.
 

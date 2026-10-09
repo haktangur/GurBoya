@@ -4,7 +4,7 @@ Türkçe boya ve hırdavat dükkânı yönetim uygulaması. Tek bilgisayarda tar
 
 ## Mevcut durum — 8 Ekim 2026
 
-F1-A için PostgreSQL 18.6 + Docker Compose altyapısı oluşturuldu. Uygulama ve iş tabloları henüz yok. Frontend/backend/ORM seçimi F1-B öncesinde onay bekliyor. Kabul testlerinin gerçek sonuçları [ilerleme belgesinde](progress.md) tutulur.
+F1-A PostgreSQL 18.6 altyapısı üzerine onaylanan ASP.NET Core Razor Pages + EF Core + Npgsql ile F1-B uygulama iskeleti eklendi. Türkçe durum ekranı çalışır; ürün/stok/satış ve kullanıcı girişi henüz yok. Kabul testlerinin gerçek sonuçları [ilerleme belgesinde](progress.md) tutulur.
 
 ## Okuma sırası
 
@@ -22,7 +22,7 @@ F1-A için PostgreSQL 18.6 + Docker Compose altyapısı oluşturuldu. Uygulama v
 
 ## Dosya ve Git düzeni
 
-Kökte compose.yaml, .env.example ve .gitignore; scripts/ altında altyapı kabul testi bulunur. Gerçek sırlar, test verileri ve yedekler Git dışında kalır. [GitHub deposu](https://github.com/haktangur/GurBoya) için normal push yetkilidir.
+Kökte temel compose.yaml, uygulama için compose.app.yaml ve Dockerfile; src/GurBoya.Web altında uygulama, scripts/ altında kurulum/kabul testleri bulunur. Gerçek sırlar, test verileri ve yedekler Git dışında kalır. [GitHub deposu](https://github.com/haktangur/GurBoya) için normal push yetkilidir.
 
 ## İlk kurulum ve çalıştırma
 
@@ -53,7 +53,7 @@ docker compose ps
 docker compose exec db psql -X -U gurboya_admin -d gurboya -c "SELECT current_database(), version();"
 ```
 
-config --quiet yapılandırmayı denetler; düz config çıktısı parolayı açığa çıkarabileceği için paylaşılmaz. Host portu yayımlanmaz; yönetim compose exec üzerinden yapılır. Gelecekteki uygulama aynı database ağı üzerinden db:5432 adresine bağlanacak. gurboya_admin başlangıç superuser hesabıdır; uygulama hesabı değildir. Asgari yetkili uygulama/migration hesapları F1-B'de oluşturulacak.
+config --quiet yapılandırmayı denetler; düz config çıktısı parolayı açığa çıkarabileceği için paylaşılmaz. Host portu yayımlanmaz; yönetim compose exec üzerinden yapılır. Uygulama aynı database ağı üzerinden db:5432 adresine bağlanır. gurboya_admin başlangıç superuser hesabıdır; uygulama hesabı değildir. Ayrı uygulama/migration hesapları aşağıdaki F1-B kurulumuyla oluşturulur.
 
 ```sh
 # Volume korunarak durdurma:
@@ -104,3 +104,62 @@ bash scripts/test-postgres.sh
 Script benzersiz bir gurboya-f1a-* projesi, rastgele yerel parola ve .tmp/ altında özel izinli test dosyaları oluşturur. Normal gurboya projesini değiştirmez. Compose/boş parola, healthcheck, TCP bağlantısı/yanlış parola, yayımlanmayan port/iç ağ, yeni konteynerde kalıcılık ve ayrı DB'ye custom dump geri yükleme kontrol edilir. Üç satır, 150.00 toplam ve Türkçe metinler birebir karşılaştırılır; ana DB'de iş tablosu bulunmadığı doğrulanır.
 
 Çıkışta yalnızca test konteynerleri/ağı kaldırılır; test volume'u, .tmp/ içindeki yerel parola ve dump korunur. Her tekrar ayrı volume bırakır. Script sonunda yazılan proje/dosya adlarıyla incelenebilir; bunların silinmesi ayrıca bilinçli yapılmalıdır. Test hatası sıfır olmayan çıkış koduyla bildirilir.
+
+## F1-B uygulama kurulumu
+
+Bu bölüm önceki yalnızca DB komutlarına uygulama katmanını ekler. Mevcut .env dosyasını koru; .env.example'daki APP_DB_PASSWORD ve MIGRATION_DB_PASSWORD alanlarını ekleyip yönetim parolasından farklı uzun rastgele parolalar yaz. WEB_PORT varsayılanı 5080'dir. Üç parola da zorunludur. İlk kurulum/derleme internet ister; imajlar hazırlandıktan sonra günlük kullanım CDN veya NuGet erişimi gerektirmez.
+
+Aşağıdaki komutlar Mac terminalinde ve PowerShell'de depo kökünden çalışır. Her adım başarılı olmadan sonrakine geçme. Normal gurboya DB'sine yalnızca altyapı şemaları/migration geçmişi eklenir; mevcut işletme verisi olan kurulumda önce doğrulanmış yedek alınmalıdır.
+
+```sh
+docker compose -f compose.yaml -f compose.app.yaml config --quiet
+docker compose -f compose.yaml -f compose.app.yaml build web
+docker compose -f compose.yaml -f compose.app.yaml up -d --wait db
+docker compose -f compose.yaml -f compose.app.yaml run --rm db-setup
+docker compose -f compose.yaml -f compose.app.yaml run --rm migrate
+docker compose -f compose.yaml -f compose.app.yaml up -d web
+```
+
+Tarayıcı adresi: http://localhost:5080. GET /health/live uygulama canlılığını, GET /health/ready veritabanı ve migration hazırlığını bildirir. Hazır durumda 200, bağlantı/migration eksikliğinde 503 döner. Bağlantı kesintisi ana sayfada Türkçe mesaj ve yeniden deneme bağlantısı gösterir. Status ekranı mağaza modüllerinin kullanıma hazır olduğu anlamına gelmez.
+
+```sh
+# İmaj indirmeden normal başlatma:
+docker compose -f compose.yaml -f compose.app.yaml up -d --pull never db web
+# Veri korunarak durdurma:
+docker compose -f compose.yaml -f compose.app.yaml stop
+```
+
+Kurulumdaki db-setup, projeye ait DB/rollerin yetkilerini ayarlar; tekrar çalıştırıldığında parolaları .env değerlerine getirir. Mevcut DB yönetim parolası .env değiştirilerek değişmez. Uygulama/migration parola değişiminden sonra db-setup çalıştırıp web'i --force-recreate ile yeniden oluştur. Migration normal web açılışında uygulanmaz; incelenmiş yeni migration için yedek aldıktan sonra migrate bakım komutunu ayrıca çalıştır. Sırlar komut satırına verilmez; çözülmüş Compose yapılandırmasını ve konteyner environment çıktısını paylaşma.
+
+Uygulama portu yalnızca loopback'e bağlıdır; DB portu yayımlanmaz. Henüz oturum açma/yetkilendirme ve mağaza kaydı giriş uçları yoktur. ASP.NET Data Protection anahtarları bu iskelette konteyner ömrüyle sınırlıdır; oturum/form işlemleri eklenmeden önce kalıcı ve uygun korumalı anahtar yönetimi tasarlanmalıdır. Npgsql bağlantısında GSS/Kerberos kapalıdır; yerel iç ağdaki SCRAM parolalı bağlantı kullanılır.
+
+## Geliştirme, migration ve doğrulama
+
+Sürümler: SDK 10.0.401, ASP.NET runtime/EF Core/dotnet-ef 10.0.9, Npgsql EF sağlayıcısı 10.0.3. SDK global.json ile, imajlar Dockerfile digestleriyle, NuGet grafiği packages.lock.json ile sabitlenir. Yerel SDK tam sürümü yoksa Docker SDK ile çalışılabilir; sistem SDK'sı bu görevde değiştirilmedi.
+
+Tam SDK kurulu ortamda:
+
+```sh
+dotnet restore src/GurBoya.Web --locked-mode
+dotnet tool restore
+dotnet build src/GurBoya.Web -c Release --no-restore
+dotnet format src/GurBoya.Web --verify-no-changes --no-restore
+dotnet ef migrations has-pending-model-changes --project src/GurBoya.Web
+```
+
+Yeni şema için `dotnet ef migrations add MigrationName --project src/GurBoya.Web --output-dir Data/Migrations` kullan, üretilen SQL/değişiklikleri incele. Design-time factory yalnızca migration üretimi/model kontrolü içindir; gerçek parolaya veya DB'ye bağlanmaz. Gerçek uygulama için Compose migrate hizmetini kullan. Uygulanmış migration silinmez/değiştirilmez. Başlangıç migration'ı kasıtlı olarak boş modelin sürüm kaydıdır.
+
+Mac terminalinde aynı kontroller için SDK konteyneri örneği (önce bağımlılık restore gerekir):
+
+```sh
+docker run --rm -v "$PWD:/source" -w /source mcr.microsoft.com/dotnet/sdk:10.0.401 sh -c 'dotnet restore src/GurBoya.Web --locked-mode && dotnet tool restore && dotnet build src/GurBoya.Web -c Release --no-restore && dotnet format src/GurBoya.Web --verify-no-changes --no-restore && dotnet ef migrations has-pending-model-changes --project src/GurBoya.Web'
+```
+
+Gerçek PostgreSQL + HTTP kabul testleri (Mac Bash, OpenSSL, curl, Docker):
+
+```sh
+bash scripts/test-app.sh
+bash scripts/test-postgres.sh
+```
+
+F1-B testi rastgele host portu ve benzersiz gurboya-f1b-* projesi kullanır. Web açılışının DDL yapmaması, eksik migration, tekrar migration, Türkçe ekran/404/yerel CSS, root olmayan kullanıcı, loopback portu, DB hesap yetkileri, bağlantı kesintisi/toparlanma ve loglarda parola bulunmaması sınanır. Test DB'si işletme verisi içermez. Çıkışta konteyner/ağ kaldırılır, volume ve .tmp/ altında log/sırlar korunur. Testler Windows doğrulaması yerine geçmez.

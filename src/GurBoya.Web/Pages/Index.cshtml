@@ -1,0 +1,17 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Başlangıç";
+}
+<p class="eyebrow">MAĞAZA YÖNETİMİ</p>
+<h1>GürBoya’ya hoş geldiniz.</h1>
+<p class="intro">Ürünlerinizi ve mağaza işlemlerinizi tek yerden takip etmek için hazırlanıyoruz.</p>
+<section class="status @(Model.Status.Ready ? "ready" : "unavailable")" role="status">
+    <span class="indicator" aria-hidden="true"></span>
+    <div><h2>@(Model.Status.Ready ? "Sistem hazır" : "Bağlantı bekleniyor")</h2><p>@Model.Status.Message</p></div>
+    @if (!Model.Status.Ready)
+    {
+        <a class="button" asp-page="/Index">Yeniden dene</a>
+    }
+</section>
+<section class="next"><h2>İlk adım: ürün ve stok takibi</h2><p>Ürün kartları, fiyatlar ve stok işlemleri bir sonraki aşamada eklenecek. Henüz mağaza kaydı girilemez.</p></section>
