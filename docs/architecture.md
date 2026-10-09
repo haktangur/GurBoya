@@ -1,6 +1,6 @@
 # GürBoya — Yerel web mimarisi
 
-Durum: Yerel web + PostgreSQL + Docker kullanıcı tarafından onaylandı. Razor Pages + EF Core + Npgsql kullanıcı tarafından onaylandı. F1-A altyapısına F1-B uygulama iskeleti eklendi; iş modülleri henüz yok.
+Durum: Yerel web + PostgreSQL + Docker kullanıcı tarafından onaylandı. Razor Pages + EF Core + Npgsql kullanıcı tarafından onaylandı. F2 ürün/stok ve tek yönetici girişi uygulandı; satış/iade sonraki fazdır.
 
 ## Çalışma düzeni
 
@@ -33,7 +33,7 @@ scripts/test-postgres.sh benzersiz test projesinde çalışır; ana kurulumdan a
 
 ASP.NET Core Razor Pages + EF Core + Npgsql kullanıcı tarafından onaylandı. Tek src/GurBoya.Web projesinde sunucu tarafında HTML üretilir; tarayıcı DB'ye erişmez. Pages HTTP/sunum katmanı, Data DB erişimi ve migration sorumluluğudur. İş servisleri ilgili fazda eklenecek; genel repository, SPA veya ayrı API dağıtımı eklenmedi.
 
-GET /health/live süreç canlılığını; GET /health/ready DB bağlantısını ve uygulanmamış migration bulunmadığını kontrol eder. Hazır değilse 503 ve sabit Türkçe mesaj döner. Ana sayfa aynı durumu gösterir ve yeniden deneme bağlantısı sunar. Yanıtta DB parolası/bağlantı metni/SQL ayrıntıları verilmez. 404 ve beklenmeyen hata sayfaları Türkçedir. Bu fazda yazma uçları ve kullanıcı oturumu yoktur; kimlik ve CSRF gereksinimleri veri girişinden önce uygulanacak.
+GET /health/live süreç canlılığını; GET /health/ready DB bağlantısını ve uygulanmamış migration bulunmadığını kontrol eder. Hazır değilse 503 ve sabit Türkçe mesaj döner. Ana sayfa aynı durumu gösterir ve yeniden deneme bağlantısı sunar. Yanıtta DB parolası/bağlantı metni/SQL ayrıntıları verilmez. 404 ve beklenmeyen hata sayfaları Türkçedir. F2 ürün/stok sayfaları Identity oturumu gerektirir; tüm form POST işlemleri antiforgery doğrulamasından geçer. Ana durum sayfası ve health uçları yalnızca genel sistem durumunu anonim gösterir.
 
 compose.app.yaml temel Compose dosyasına eklenir: web sadece 127.0.0.1:5080 üzerinden yayımlanır, konteynerde 8080 dinler ve root olmayan .NET kullanıcısıyla çalışır. DB iç ağda kalır. Araç profilindeki db-setup yönetim hesabıyla rol/şema yetkilerini hazırlar; migrate ayrı DDL hesabıyla açıkça çalıştırılır. Web sadece gurboya_app parolasını alır. Açılışta otomatik migration/EnsureCreated/reset yoktur. app şeması iş tabloları için ayrılmıştır; infrastructure şeması migration geçmişini tutar. Başlangıç migration'ı kasıtlı olarak iş tablosu oluşturmaz.
 
@@ -49,7 +49,7 @@ Veritabanı kapalıyken veya kayıt sonucu belirsizken başarılı işlem göste
 
 ## Ürün akışı ve arayüz
 
-Ürün adı, marka (elle eklenebilir/seçilebilir), kategori, boya için ambalaj hacmi (litre), stok birimi, alış/satış fiyatı ve isteğe bağlı barkod girilir. Stok girişi ayrıca miktar ve açıklama içerir. Boyada fiyat TL/kutu, miktar kutu sayısıdır; litre hacim bilgisidir. Diğer ürünler adet veya gram üzerinden izlenebilir. Gram/litre otomatik dönüşümü yapılmaz.
+Ürün adı, marka (elle eklenebilir/seçilebilir), kategori, boya için ambalaj hacmi (litre), stok birimi, alış/satış fiyatı ve isteğe bağlı barkod girilir. Stok girişi ayrıca miktar ve açıklama içerir. Boyada fiyat TL/kutu, miktar kutu sayısıdır; litre hacim bilgisidir. Diğer ürünler kutu, adet veya gram üzerinden izlenebilir; tüm miktarlar tam sayıdır. Gram/litre otomatik dönüşümü yapılmaz.
 
 Örnek: 2,5 L ambalajdan 12 kutu = 30 L toplam hacim; 1 kutu satış sonrası 11 kutu kalır. 15 L ambalaj ayrı stok kalemi önerisidir. Marka/seri/baz bilgisi farklı ürünleri ayırt eder. Aynı ürünün tekrar gelişi yeni ürün kartı yerine stok hareketi oluşturur.
 
@@ -61,7 +61,7 @@ Büyük ve okunabilir alanlar, klavyeyle geçiş, hızlı ürün arama, Türkçe
 
 Satış, stok hareketi, stok bakiyesi ve gerekli audit kaydı tek transaction'da işlenir. Fiyat değişikliği geçmiş satış fiyatını değiştirmez. İade/iptal önceki işlemi silmez; ters kayıt oluşturur. Ayrıntılar [database.md](database.md) içindedir.
 
-Parametreli sorgu/ORM, sunucu tarafı doğrulama, güvenilir kimlik kütüphanesi ve güvenli parola özeti kullanılır; özel şifreleme veya kimlik sistemi yazılmaz. Roller henüz belirlenmedi. Cookie tabanlı oturum seçilirse CSRF koruması, güvenli oturum ayarları ve CORS/origin kısıtları tasarlanır. SQL şifreleri, müşteri bilgileri ve hassas içerik loglara yazılmaz. Yalnızca localhost kullanımı güvenliğin yerine geçmez.
+Parametreli sorgu/ORM, sunucu tarafı doğrulama, güvenilir kimlik kütüphanesi ve güvenli parola özeti kullanılır; özel şifreleme veya kimlik sistemi yazılmaz. Tek yonetici hesabı seçildi; kullanıcıya açık kayıt/rol yönetimi yoktur. Cookie tabanlı oturum seçilirse CSRF koruması, güvenli oturum ayarları ve CORS/origin kısıtları tasarlanır. SQL şifreleri, müşteri bilgileri ve hassas içerik loglara yazılmaz. Yalnızca localhost kullanımı güvenliğin yerine geçmez.
 
 Öneri pg_dump ile günlük yedek, pg_restore ile ayrı veritabanında geri yükleme provası ve harici ortama kopyadır. PostgreSQL rolleri/kurulum sırları dump dışında ayrıca güvenli yönetilir. Aynı disk yedeği disk arızasına karşı yeterli değildir. Günlük yedek gün içindeki tüm işlemleri korumaz; kabul edilen veri kaybı/saklama süresi henüz belirlenmedi. Canlı verinin üstüne prova yapılmaz.
 
@@ -70,3 +70,13 @@ Resmî muhasebe, ödeme cihazı, e-fatura/e-arşiv entegrasyonu varsayılmaz. B�
 ## Kaynaklar
 
 8 Ekim 2026 kontrolü: [PostgreSQL Docker imajı](https://hub.docker.com/_/postgres), [Docker Windows gereksinimleri](https://docs.docker.com/desktop/setup/install/windows-install/), [PostgreSQL yedekleme](https://www.postgresql.org/docs/current/backup-dump.html). Eski MSSQL kararı [karar kaydında](decisions.md) tarihsel olarak korunur.
+
+## F2 iş katmanı ve güvenlik
+
+InventoryService ürün, fiyat ve stok transaction'larının ortak yazma yoludur; EF Core DbContext IdentityUserContext üzerinden standart kimlik tablolarını da yönetir. Ürün üzerindeki bigint version eski formu yakalar. İstek UUID'si+hash transaction advisory lock altında denetlenir; stok için ürün satırı kilitlenir. DB hareket trigger'ı bakiye ile hareketi atomik günceller ve eksi stok engelini uygular. Geçmiş tabloları append-only; detaylar database.md'de.
+
+ASP.NET Identity'nin PasswordHasher/UserManager/SignInManager bileşenleri kullanılır; özel parola kriptografisi yazılmadı. Giriş sadece tek yönetici şifresiyle yapılır, dış kayıt yoktur. HttpOnly/SameSite=Strict oturum çerezi, 8 saat kayan süre ve 5 hatada 5 dakika kilitleme vardır. Kullanıcı şifresini değiştirebilir; güvenlik damgası 1 dakikada kontrol edilir. Yerel HTTP sadece loopback'e açıktır; dış ağ dağıtımı bu kurulumun kapsamı değildir.
+
+Anahtarlar uygulama kullanıcısına ait 0700 /keys dizinindeki named volume'da kalıcıdır; konteyner yeniden oluşturulması oturumu bozmaz. Anahtar XML'leri bu yerel dağıtımda ayrıca şifrelenmez; disk/OS hesabı erişimi Windows pilotunda doğrulanacak. İlk parola yalnızca admin bakım hizmetine verilir; web DB yönetim/migration/ilk-parola sırlarını almaz. İlk kurulum dosyaları Git dışında kalır.
+
+KDV hesabı yalnızca sunucuda decimal ile yapılır; fiyat önizlemesi normal CSRF korumalı form gönderimidir, tarayıcıda ayrı float hesap uygulanmaz. CSS yereldir; üçüncü taraf CDN, script veya yazı tipi yoktur.

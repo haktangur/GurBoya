@@ -23,3 +23,28 @@ a:focus-visible { outline: 3px solid #bd7623; outline-offset: 4px; }
 .next p { margin-bottom: 0; color: #526057; }
 footer { font-size: 13px; color: #637067; }
 @media (max-width: 600px) { header, main, footer { padding: 24px; } main { padding-top: 40px; } .status { align-items: flex-start; flex-wrap: wrap; } .status div { flex: 1; min-width: 180px; } }
+
+nav, .heading, .pager { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+nav a, main a:not(.button) { color: #164e41; font-weight: 600; }
+nav form { margin: 0; }
+.heading { justify-content: space-between; margin-bottom: 24px; }
+.panel, .search { background: #fff; border: 1px solid #daddd3; border-radius: 16px; padding: 24px; margin: 24px 0; }
+.narrow { max-width: 520px; }
+label { display: block; font-weight: 600; margin: 14px 0; }
+input, select { width: 100%; border: 1px solid #8a9c90; border-radius: 6px; background: white; color: #233530; padding: 12px; font: inherit; margin-top: 6px; }
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px solid #bd7623; outline-offset: 2px; }
+.check { display: flex; align-items: center; gap: 10px; }
+.check input { width: auto; margin: 0; }
+button { background: #164e41; color: #fff; border: 0; border-radius: 8px; font: inherit; font-weight: 600; padding: 12px 18px; cursor: pointer; }
+.secondary { background: #e9ede4; color: #164e41; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
+.table-wrap { overflow-x: auto; margin: 24px 0; }
+table { width: 100%; border-collapse: collapse; background: white; text-align: left; }
+th, td { padding: 14px; border-bottom: 1px solid #daddd3; vertical-align: top; }
+th { background: #e9ede4; font-size: 14px; }
+small { display: block; font-size: 12px; margin-top: 5px; color: #526057; }
+.error, .out { color: #9c361f; }
+.out { display: block; font-size: 14px; }
+.validation-summary-valid { display: none; }
+.pager { margin: 24px 0; }
+@media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } header { align-items: flex-start; gap: 20px; flex-wrap: wrap; } }

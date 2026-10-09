@@ -10,5 +10,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0.9@sha256:7644f992230d35cf230017189d403
 WORKDIR /app
 COPY --from=build /app .
 ENV ASPNETCORE_HTTP_PORTS=8080
+RUN mkdir -p /keys && chown "$APP_UID" /keys && chmod 700 /keys
 USER $APP_UID
 ENTRYPOINT ["dotnet", "GurBoya.Web.dll"]

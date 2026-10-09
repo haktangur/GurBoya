@@ -7,7 +7,14 @@
     <link rel="stylesheet" href="~/site.css" asp-append-version="true" />
 </head>
 <body>
-    <header><a class="brand" asp-page="/Index">GürBoya<span>Boya ve hırdavat</span></a><span class="badge">Yerel uygulama</span></header>
+    <header><a class="brand" asp-page="/Index">GürBoya<span>Boya ve hırdavat</span></a><nav aria-label="Ana menü">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a asp-page="/Products/Index">Ürünler ve stok</a><a asp-page="/Account/Password">Şifre</a>
+        <form method="post" asp-page="/Account/Logout"><button class="secondary">Çıkış</button></form>
+    }
+    else { <a asp-page="/Account/Login">Giriş yap</a> }
+    </nav></header>
     <main>@RenderBody()</main>
     <footer>GürBoya · Mağaza yönetimi</footer>
 </body>

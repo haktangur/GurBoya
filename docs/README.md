@@ -2,9 +2,9 @@
 
 Türkçe boya ve hırdavat dükkânı yönetim uygulaması. Tek bilgisayarda tarayıcıdan açılır; uygulama ve PostgreSQL Docker Compose ile yerel çalışır. Bulut gerekmez. Kurulum tamamlandıktan sonra günlük işlemler internet gerektirmez.
 
-## Mevcut durum — 8 Ekim 2026
+## Mevcut durum — 9 Ekim 2026
 
-F1-A PostgreSQL 18.6 altyapısı üzerine onaylanan ASP.NET Core Razor Pages + EF Core + Npgsql ile F1-B uygulama iskeleti eklendi. Türkçe durum ekranı çalışır; ürün/stok/satış ve kullanıcı girişi henüz yok. Kabul testlerinin gerçek sonuçları [ilerleme belgesinde](progress.md) tutulur.
+F2 ürün/stok modülü ve şifreli giriş hazırlandı: elle boya marka/litre/renk/fiyat, kutu/adet/gram, stok girişi/düzeltme/sayım ve fiyat geçmişi. KDV ekle/dahil seçimiyle net, KDV ve toplam ayrı gösterilir; başlangıç oranı %15, karttan değiştirilebilir. Satış fişi henüz yok. Güncel kabul sonuçları [ilerleme belgesinde](progress.md).
 
 ## Okuma sırası
 
@@ -107,9 +107,9 @@ Script benzersiz bir gurboya-f1a-* projesi, rastgele yerel parola ve .tmp/ altı
 
 ## F1-B uygulama kurulumu
 
-Bu bölüm önceki yalnızca DB komutlarına uygulama katmanını ekler. Mevcut .env dosyasını koru; .env.example'daki APP_DB_PASSWORD ve MIGRATION_DB_PASSWORD alanlarını ekleyip yönetim parolasından farklı uzun rastgele parolalar yaz. WEB_PORT varsayılanı 5080'dir. Üç parola da zorunludur. İlk kurulum/derleme internet ister; imajlar hazırlandıktan sonra günlük kullanım CDN veya NuGet erişimi gerektirmez.
+Bu bölüm önceki yalnızca DB komutlarına uygulama katmanını ekler. Mevcut .env dosyasını koru; .env.example'daki APP_DB_PASSWORD ve MIGRATION_DB_PASSWORD alanlarını ekleyip yönetim parolasından farklı uzun rastgele parolalar yaz. WEB_PORT varsayılanı 5080'dir. Üç parola da zorunludur. ADMIN_PASSWORD yalnızca ilk yönetici oluşturma komutunda kullanılır; web hizmetine verilmez. İlk kurulum/derleme internet ister; imajlar hazırlandıktan sonra günlük kullanım CDN veya NuGet erişimi gerektirmez.
 
-Aşağıdaki komutlar Mac terminalinde ve PowerShell'de depo kökünden çalışır. Her adım başarılı olmadan sonrakine geçme. Normal gurboya DB'sine yalnızca altyapı şemaları/migration geçmişi eklenir; mevcut işletme verisi olan kurulumda önce doğrulanmış yedek alınmalıdır.
+Aşağıdaki komutlar Mac terminalinde ve PowerShell'de depo kökünden çalışır. Her adım başarılı olmadan sonrakine geçme. Güncel migration’lar gurboya DB’sine kullanıcı/ürün/stok tablolarını da ekler; mevcut işletme verisi olan kurulumda önce doğrulanmış yedek alınmalıdır.
 
 ```sh
 docker compose -f compose.yaml -f compose.app.yaml config --quiet
@@ -131,7 +131,7 @@ docker compose -f compose.yaml -f compose.app.yaml stop
 
 Kurulumdaki db-setup, projeye ait DB/rollerin yetkilerini ayarlar; tekrar çalıştırıldığında parolaları .env değerlerine getirir. Mevcut DB yönetim parolası .env değiştirilerek değişmez. Uygulama/migration parola değişiminden sonra db-setup çalıştırıp web'i --force-recreate ile yeniden oluştur. Migration normal web açılışında uygulanmaz; incelenmiş yeni migration için yedek aldıktan sonra migrate bakım komutunu ayrıca çalıştır. Sırlar komut satırına verilmez; çözülmüş Compose yapılandırmasını ve konteyner environment çıktısını paylaşma.
 
-Uygulama portu yalnızca loopback'e bağlıdır; DB portu yayımlanmaz. Henüz oturum açma/yetkilendirme ve mağaza kaydı giriş uçları yoktur. ASP.NET Data Protection anahtarları bu iskelette konteyner ömrüyle sınırlıdır; oturum/form işlemleri eklenmeden önce kalıcı ve uygun korumalı anahtar yönetimi tasarlanmalıdır. Npgsql bağlantısında GSS/Kerberos kapalıdır; yerel iç ağdaki SCRAM parolalı bağlantı kullanılır.
+Uygulama portu yalnızca loopback'e bağlıdır; DB portu yayımlanmaz. Ürün ve stok sayfaları ASP.NET Identity oturumu gerektirir; form POST işlemleri CSRF korumalıdır. Data Protection anahtarları protection_keys volume’unda /keys altında, yalnızca uygulama kullanıcısına açık 0700 dizinde tutulur. Bu yerel kurulumda anahtar dosyaları ayrıca şifrelenmez; Docker/işletim sistemi hesabı erişimi korunmalı ve canlı Windows kurulumunun disk güvenliği ayrıca doğrulanmalıdır. Npgsql bağlantısında GSS/Kerberos kapalıdır; yerel iç ağdaki SCRAM parolalı bağlantı kullanılır.
 
 ## Geliştirme, migration ve doğrulama
 
@@ -163,3 +163,29 @@ bash scripts/test-postgres.sh
 ```
 
 F1-B testi rastgele host portu ve benzersiz gurboya-f1b-* projesi kullanır. Web açılışının DDL yapmaması, eksik migration, tekrar migration, Türkçe ekran/404/yerel CSS, root olmayan kullanıcı, loopback portu, DB hesap yetkileri, bağlantı kesintisi/toparlanma ve loglarda parola bulunmaması sınanır. Test DB'si işletme verisi içermez. Çıkışta konteyner/ağ kaldırılır, volume ve .tmp/ altında log/sırlar korunur. Testler Windows doğrulaması yerine geçmez.
+
+## F2 ilk giriş ve kullanım
+
+İlk kurulumda .env içindeki ADMIN_PASSWORD için en az 10 karakterli, harf/rakam içeren benzersiz bir şifre belirle. Ardından DB hesap hazırlığı ve migration adımlarından sonra:
+
+```sh
+docker compose -f compose.yaml -f compose.app.yaml run --rm admin
+docker compose -f compose.yaml -f compose.app.yaml up -d --force-recreate web
+```
+
+Hesap adı yonetici'dir; giriş ekranı yalnızca şifre ister. admin komutu mevcut hesabı/şifreyi değiştirmez. Bu geliştirme tesliminde üretilen ilk giriş bilgileri .local-notes/ilk-giris.txt dosyasındadır (0600, Git dışında); terminal çıktısına veya belgelere şifre yazılmadı. Giriş yaptıktan sonra Şifre menüsünden değiştirebilirsin. Beş hatalı giriş hesabı 5 dakika kilitler. Oturum 8 saatlik kayan süreyle sınırlıdır; Çıkış düğmesi oturumu kapatır. Açık kullanıcı kaydı veya bulut girişi yoktur.
+
+1. **Ürünler ve stok → Yeni ürün:** ad, tür, marka, renk, ambalaj litresi, birim, isteğe bağlı kategori/barkod gir. Boyada marka/renk/pozitif litre/kutu zorunludur. Diğer ürünlerde kutu, adet veya gram seçilebilir; gram hassasiyeti 1 gramdır.
+2. **Fiyat:** alış ve satış tutarlarını seçilen birim başına TL gir. KDV seçimi her iki fiyata uygulanır. KDV ekle ile 100 TL + %15 = 115 TL; KDV dahil 115 TL içinden net 100 TL ve 15 TL KDV ayrılır. Fiyat ayrıntısını göster düğmesi kaydetmeden hesaplar. Oran karttan düzeltilebilir; eski fiyat geçmişi değişmez. Birim fiyatında dört ondalığa kadar hassasiyet desteklenir (ör. gram başına 0,025 TL); binlik ayırıcı kullanma.
+3. **Stok işlemi:** giriş için pozitif tam miktar; gerekçeli düzeltme için artı/eksi fark; sayım için raftaki toplam miktarı gir. Her işlemde açıklama gerekir. Sayımda sıfır ve değişmeyen miktar da kaydedilir. Negatif stok oluşmaz. Stok bittiğinde “Stokta yok” görünür; giriş sonrası tekrar kullanılabilir. Bu işlemler satış fişi oluşturmaz.
+4. **Geçmiş:** stok ve fiyat kayıtları silinmez. Ürünü silmek yerine pasifleştir; geçmiş görünür kalır. Yeniden etkinleştirme mümkündür. Hareketi olan ürünün birimi/türü/litresi değişmez; farklı ambalaj için yeni kart açılır. Form eski kaldıysa yenileyerek tekrar dene.
+
+Sayfalar 50 kayıtlık sayfalama kullanır. Arama ürün adı, marka, renk, kategori ve barkodu kapsar. Mevcut stok hareketlerinin toplamı kart bakiyesine eşit tutulur. Aynı formun tekrar gönderimi aynı işlem UUID'siyle çift stok/fiyat kaydı üretmez.
+
+## F2 yükseltme ve yedek
+
+Mevcut kurulumda önce web'i durdurup benzersiz isimli custom pg_dump yedeği al; ayrı DB'de pg_restore ile doğrula. Sonra güncel imajı derle, migrate, gerekiyorsa admin ve web başlatma komutlarını uygula. F2 migration'ları geçmiş migration dosyalarını değiştirmez. Veritabanı dump'ı kullanıcı parola özetlerini de içerir; yedekler hassastır ve Git dışında tutulur. Ayrı DB'ye prova canlı DB'nin üstüne yazmaz.
+
+Felaket kurtarmada dump şema/verileri geri getirir, sunucu rollerini ve Data Protection volume'unu kapsamaz. --no-owner/--no-privileges ile yüklenen prova DB'si uygulama çalıştırmaya hazır yetki düzeni sayılmaz. Canlı kurtarmada rol sahiplikleri, app/infrastructure yetkileri ve geçmiş tablolarının UPDATE/DELETE yasakları ayrıca doğrulanmalıdır. Anahtar kaybı veritabanını silmez fakat eski oturumları geçersiz kılar.
+
+scripts/test-app.sh artık F1-B altyapı kontrollerine F2 HTTP testlerini de ekler; Python 3 standart kütüphanesi gerekir. Giriş/CSRF/kilitleme, KDV/ondalık, ürün/stock replay, eşzamanlı son stok, sayım, fiyat geçmişi, pasif ürün, rollback, mutabakat, F2 dump/restore ve yeniden oluşturma sonrası oturum sınanır. Synthetic kullanıcı/parola/çerezler yalnızca .tmp/ altında tutulur. Test her seferinde ayrı DB ve anahtar volume'ları bırakır; otomatik volume silmez.

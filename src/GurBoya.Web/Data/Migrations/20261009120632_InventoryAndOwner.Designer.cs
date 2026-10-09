@@ -3,6 +3,7 @@ using System;
 using GurBoya.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GurBoya.Web.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261009120632_InventoryAndOwner")]
+    partial class InventoryAndOwner
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -189,7 +192,7 @@ namespace GurBoya.Web.Data.Migrations
 
                             t.HasCheckConstraint("ck_product_paint", "NOT \"IsPaint\" OR (\"Unit\" = 'BOX' AND \"PackageLiters\" IS NOT NULL AND \"PackageLiters\" > 0 AND length(trim(\"Brand\")) > 0 AND length(trim(\"Color\")) > 0)");
 
-                            t.HasCheckConstraint("ck_product_quantity", "\"Quantity\" BETWEEN 0 AND 1000000000");
+                            t.HasCheckConstraint("ck_product_quantity", "\"Quantity\" >= 0");
 
                             t.HasCheckConstraint("ck_product_unit", "\"Unit\" IN ('BOX','PIECE','GRAM')");
                         });
@@ -250,9 +253,9 @@ namespace GurBoya.Web.Data.Migrations
 
                     b.ToTable("stock_movements", "app", t =>
                         {
-                            t.HasCheckConstraint("ck_movement_delta", "(\"Delta\" <> 0 OR \"Kind\" = 'COUNT') AND abs(\"Delta\"::numeric) <= 1000000000");
+                            t.HasCheckConstraint("ck_movement_delta", "\"Delta\" <> 0 AND abs(\"Delta\"::numeric) <= 1000000000");
 
-                            t.HasCheckConstraint("ck_movement_kind", "(\"Kind\" = 'RECEIPT' AND \"Delta\" > 0) OR \"Kind\" IN ('ADJUSTMENT','COUNT')");
+                            t.HasCheckConstraint("ck_movement_kind", "(\"Kind\" = 'RECEIPT' AND \"Delta\" > 0) OR \"Kind\" = 'ADJUSTMENT'");
 
                             t.HasCheckConstraint("ck_movement_reason", "length(trim(\"Reason\")) > 0");
                         });

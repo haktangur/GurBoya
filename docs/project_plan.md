@@ -1,6 +1,6 @@
 # GürBoya — Faz planı
 
-Durum: F1-A Mac ARM64 kabul testleri tamamlandı; Windows/AMD64 doğrulaması bekliyor. F1-B stack seçimi onaylandı; Razor Pages/EF Core/Npgsql iskeleti ve Mac ARM64 kabul testleri tamamlandı. Son kullanıcı hesapları mağaza verisi girişinden önce netleştirilecek. Diğer fazların ayrıntıları açık iş kuralları ve stack onayına bağlı taslak plandır. Tarih/süre taahhüdü verilmedi.
+Durum: F1-A Mac ARM64 kabul testleri tamamlandı; Windows/AMD64 doğrulaması bekliyor. F1-B stack seçimi onaylandı; Razor Pages/EF Core/Npgsql iskeleti ve Mac ARM64 kabul testleri tamamlandı. Tek şifreli yönetici hesabı K17 ile onaylandı; F2 Mac ARM64 kabul testleri tamamlandı. Diğer fazların ayrıntıları açık iş kuralları ve stack onayına bağlı taslak plandır. Tarih/süre taahhüdü verilmedi.
 
 | Faz | Amaç ve kapsam | Bağımlılık | Teknik görev ve bitiş/test koşulu |
 |---|---|---|---|
@@ -27,3 +27,7 @@ F1-A bittiğinde değişiklikleri/testleri kaydet ve commit oluştur; F1-B için
 ## F1-B uygulama kapsamı
 
 Onaylanan Razor Pages + EF Core + Npgsql ile tek web projesi. Türkçe durum/hata ekranları, yerel CSS, canlılık/hazırlık HTTP uçları, ayrı uygulama/migration DB hesapları ve açık migration komutu. İlk migration iş tablosu oluşturmaz. Açılışta DDL yapılmaması, eksik migration, DB kesintisi/toparlanma, migration tekrar güvenliği ve uygulama yetki sınırları gerçek PostgreSQL üzerinde test edilir. Son kullanıcı girişi ve iş modülleri bu iskelete dahil değildir.
+
+## F2 onaylı kapsam — 9 Ekim 2026
+
+Boya: elle marka/litre/renk/fiyat. Diğer ürünler: kutu/adet/gram; tüm miktarlar tam sayı. Ürün kartı, arama, pasifleştirme, giriş/düzeltme/sayım, negatif stok engeli, fiyat/stok geçmişi. Fiyat: TL, KDV ekle/dahil, varsayılan %15, değiştirilebilir oran ve ayrı net/KDV/toplam. Tek yönetici girişi/şifre değişimi ve CSRF korumalı formlar. Kabul: fiyat örnekleri, kesirli miktar reddi, çift gönderim, eşzamanlı son stok, rollback, stok mutabakatı, pasif/yeniden aktif ürün, geçmiş ve yedekten dönüş. F3 satış fişi bu kapsamda yoktur.

@@ -75,9 +75,53 @@ Normal gurboya geliştirme kurulumu da başlatıldı: localhost:5080; DB'de yaln
 
 9 Ekim 2026 ek kontrolü: Kullanıcı Docker Desktop’ı kapatıp açtıktan sonra gurboya-db-1 healthy ve gurboya-web-1 çalışır bulundu; localhost:5080/health/ready yeniden ready yanıtı verdi. Bu, Mac üzerinde Docker yeniden başlatma doğrulamasıdır; Windows/OS açılış testi değildir.
 
+## F2 — ürün, stok, KDV ve tek kullanıcı (9 Ekim 2026)
+
+K14–K18 uygulandı: elle boya marka/litre/renk/fiyat; diğer ürünlerde kutu/adet/gram; 1 gram ve tam kutu/adet; eksi stok engeli; tek şifreli yönetici; KDV ekle/dahil, kullanıcı seçimi başlangıç %15, değiştirilebilir oran ve ayrı net/KDV/toplam.
+
+Ürün arama, kart oluşturma/düzenleme, pasif/aktif durumu, stok girişi/gerekçeli düzeltme/sayım ve geçmiş sayfaları eklendi. Birim fiyatları decimal/numeric, dört basamaklı hesaplanır. İlk fiyat ve değişiklikler saklanır; hareketin alış fiyatı sonraki kart düzenlemesinden etkilenmez. Hareket/bakiye/istek kaydı tek transaction; UUID+hash/advisory lock tekrarları, ürün satırı kilidi eşzamanlı stok çıkışlarını korur. DB trigger'ları doğrudan bakiye değişimini, negatif stoğu, geçmiş güncelleme/silmeyi ve geçmişli ürünün birim değişimini engeller.
+
+ASP.NET Identity 10.0.9 eklendi; özel şifreleme yazılmadı. Tek yonetici hesabı, giriş/çıkış/şifre değiştirme, 5 hatada 5 dakika kilit, CSRF korumalı formlar, HttpOnly/SameSite=Strict çerez ve kalıcı Data Protection volume'u var. İlk parola yalnızca admin komutuna verilir; admin tekrar çalışırsa mevcut şifreyi değiştirmez. Anahtar dizini 0700; XML anahtarlar ayrıca şifreli değildir, yerel OS/Docker erişimine dayanır. Windows disk güvenliği pilot öncesi doğrulanacak.
+
+### F2 doğrulama kanıtları
+
+| Kontrol | Sonuç |
+|---|---|
+| Kilitli restore / Release derleme | Geçti; 0 hata, 0 uyarı |
+| dotnet format --verify-no-changes / EF pending-model | Geçti; model ve migration uyumlu |
+| Açık migration ve tekrarı | Geçti; 3 migration kaydı; web başlangıcı DDL yapmaz |
+| Giriş/CSRF/yanlış şifre | Yetkisiz ürün erişimi girişe yönlenir; CSRF'siz POST ve yanlış şifre reddedilir |
+| Şifre değişimi/çıkış/kilit | Eski şifre reddi, yeni şifre kabulü ve 5 hata sonrası geçici kilit geçti |
+| Ürün/KDV | Serbest marka/renk, 2,5 L; 100 + %15 = 115; dahil 115 → 100 net + 15 KDV; %20 değişimi geçmişi korudu |
+| Birimler/geçersiz veri | Boyada zorunlu litre/marka/renk/kutu; diğerlerinde kutu/adet/gram; 0,5 ve 0.5 miktar reddi; NaN ve geçersiz oran reddi |
+| Aynı form tekrarları | Ürün/fiyat/stok tekrarında çift kayıt yok; aynı UUID farklı içerikle reddedilir |
+| Stok bitti/yenilendi | Fazla azaltma reddedildi; sıfır stok uyarısı; giriş sonrası tekrar kullanılabilir |
+| Eşzamanlı son miktar | İki azaltma isteğinden yalnızca biri geçti; bakiye 0 |
+| Sayım | Mutlak toplam, sıfır sayım ve fark 0 kaydı geçti; eski sayımın tekrarı sonraki girişi ezmedi |
+| Eski form/pasif kart/geçmiş | Version çakışması ve geçmişli kartta birim değişimi reddi; pasif kartta yazma reddi ve yeniden aktifleştirme geçti |
+| DB rollback/mutabakat | Zorlanan işlem hatasında hareket/bakiye geri alındı; her kartta bakiye = hareket toplamı |
+| DB korumaları | Doğrudan bakiye UPDATE ve geçmiş DELETE engellendi; app superuser/DDL/TEMP yetkisiz |
+| F2 custom dump/restore | Ayrı f2_restore DB'ye kullanıcı/ürün/geçmiş/trigger şeması geri yüklendi; stok toplamı eşleşti |
+| Oturum kalıcılığı | Web konteyneri yeniden oluşturulunca mevcut oturumla ürün listesi 200 |
+| DB kesintisi/toparlanma | Readiness/ana durum sayfası 503; DB geri gelince 200 |
+| Sır/biçim/belge | Parolalar loglarda/teslim dosyalarında yok; diff/shell/Python sözdizimi ve yerel belge bağlantıları geçti |
+| F1-A regresyon | Kalıcılık, 3 satır/150.00 ve Türkçe metinli ayrı DB restore tekrar geçti |
+
+Son F2 test komutu: bash scripts/test-app.sh; 0 çıkış kodu; izole proje gurboya-f1b-6ae122cd127a; kanıt/dump/çerez dizini .tmp/f1-b.AgF1tk. F1-A: gurboya-f1a-4bd593cc576b, .tmp/f1-a.XSdTAX; çıkış 0. Test projeleri normal DB'den ayrıdır; konteyner/ağ kaldırıldı, DB ve anahtar volume'ları silinmedi.
+
+İlk denemelerde test yardımcı kodunda CookieJar kopyalama ve Netscape çerez dosyasında boş süre alanı sorunları görüldü; düzeltildi ve paket tekrar tamamen geçti. Bu başarısız denemeler başarılı test sayılmadı. Son Türkçe model doğrulama değişikliğinden sonra tüm F2 paketi yeniden çalıştırıldı.
+
+### Yerel yükseltme
+
+Güncellemeden önce web durduruldu, backups/before-f2-b2cb25677a80.dump alındı ve before_f2_b2cb25677a80 adlı ayrı DB'ye restore edildi; kaynak/geri yüklenen migration sayısı 1 ile eşleşti. Ardından InventoryAndOwner ve StockCount uygulandı, yönetici hesabı oluşturuldu ve web yeniden başlatıldı. Mevcut veri/volume silinmedi.
+
+localhost:5080 üzerinde gerçek yerel giriş, boş ürün listesi ve ready yanıtı doğrulandı. Sentetik ürünler normal DB'ye taşınmadı. Başlangıç şifresi .env ve .local-notes/ilk-giris.txt içinde 0600 izinli, Git dışında tutuluyor; çıktıya yazılmadı. Kullanıcı şifresini arayüzden değiştirebilir. İşlem sonrası web ve DB çalışır bırakıldı.
+
+Windows/AMD64 çalıştırma, OS açılışı, tam internet kesintisi ve görsel tarayıcı kontrolü yapılmadı. Önceki oturumda tarayıcı sağlayıcısı yoktu/Safari erişimi verilmedi; bu görevde HTTP form akışları doğrulandı, görsel kontrol yapılmış sayılmadı. Satış fişi, iade, cari/tahsilat ve pigment modülleri eklenmedi.
+
 ## Aktif ve sonraki görev
 
-F1-B teslim dalı feat/f1-b-app; Git gönderim sonucu ve uzak commit kimliği teslim mesajında bildirilir. F2 öncesinde ürün varyantı/baz, gram hassasiyeti, negatif stok kuralı ve kullanıcı hesabı yaklaşımını netleştir. F2 iş modülüne bu tur geçilmedi.
+F2 teslim dalı feat/f2-inventory; commit/push ve uzak kimlik doğrulaması görev tesliminde bildirilir. Sonraki F3 için indirim/fiş yuvarlaması, iade/hasarlı ürün ve renklendirme ücreti kuralları netleştirilecek. Ürün fiyatlarının mevcut KDV seçimi bu soruları engellemeden uygulanmıştır.
 
 ## Kalan kararlar
 

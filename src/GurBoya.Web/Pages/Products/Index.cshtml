@@ -1,0 +1,29 @@
+@page
+@model GurBoya.Web.Pages.Products.IndexModel
+@using GurBoya.Web.Inventory
+@{ ViewData["Title"] = "Ürünler ve stok"; }
+<div class="heading"><div><p class="eyebrow">KATALOG</p><h1>Ürünler ve stok</h1></div><a class="button" asp-page="Edit">Yeni ürün</a></div>
+<form method="get" class="search">
+    <label for="Search">Ürün, marka, renk, kategori veya barkod ara</label>
+    <input asp-for="Search" type="search" />
+    <label class="check"><input asp-for="ShowInactive" /> Pasif ürünleri de göster</label><button>Ara</button>
+</form>
+@if (Model.Products.Count == 0) { <p class="panel">Ürün bulunamadı. Yeni bir ürün ekleyebilir veya aramanızı değiştirebilirsiniz.</p> }
+else
+{
+    <div class="table-wrap"><table><thead><tr><th>Ürün</th><th>Marka / renk / boyut</th><th>Stok</th><th>KDV hariç</th><th>KDV</th><th>Satış toplamı</th></tr></thead><tbody>
+    @foreach (var product in Model.Products)
+    {
+        var price = Pricing.Calculate(product.SalePrice, product.VatRate, product.VatIncluded);
+        <tr><td><a asp-page="Details" asp-route-id="@product.Id">@product.Name</a><small>#@product.Id · @product.Category @(product.IsActive ? "" : "· Pasif")</small></td>
+        <td>@product.Brand / @product.Color @if (product.PackageLiters.HasValue) { <span>/ @product.PackageLiters.Value.ToString("0.###") L</span> }</td>
+        <td>@product.Quantity @Pricing.UnitLabel(product.Unit) @if (product.Quantity == 0) { <strong class="out">Stokta yok</strong> }</td>
+        <td>@Pricing.Money(price.Net) TL</td><td>@Pricing.Money(price.Vat) TL <small>%@product.VatRate.ToString("0.##")</small></td><td>@Pricing.Money(price.Gross) TL<small>/ @Pricing.UnitLabel(product.Unit)</small></td></tr>
+    }
+    </tbody></table></div>
+}
+<nav class="pager">
+@if (Model.PageNumber > 1) { <a asp-route-PageNumber="@(Model.PageNumber - 1)" asp-route-Search="@Model.Search" asp-route-ShowInactive="@Model.ShowInactive">Önceki</a> }
+<span>Sayfa @Model.PageNumber</span>
+@if (Model.HasNext) { <a asp-route-PageNumber="@(Model.PageNumber + 1)" asp-route-Search="@Model.Search" asp-route-ShowInactive="@Model.ShowInactive">Sonraki</a> }
+</nav>

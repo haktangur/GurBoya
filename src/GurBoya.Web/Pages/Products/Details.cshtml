@@ -1,0 +1,29 @@
+@page "{id:long}"
+@model GurBoya.Web.Pages.Products.DetailsModel
+@using GurBoya.Web.Inventory
+@{ ViewData["Title"] = Model.Product.Name; var product = Model.Product; var price = Pricing.Calculate(product.SalePrice, product.VatRate, product.VatIncluded); }
+<a asp-page="Index">← Ürünler</a>
+<div class="heading"><h1>@product.Name</h1><a class="button" asp-page="Edit" asp-route-id="@product.Id">Ürünü düzenle</a></div>
+<p>@product.Brand · @product.Color @if (product.PackageLiters.HasValue) { <span>· @product.PackageLiters.Value.ToString("0.###") L</span> } · @product.Category · Barkod: @(product.Barcode ?? "—")</p>
+<section class="panel"><h2>Stok: <span id="stock-quantity">@product.Quantity</span> @Pricing.UnitLabel(product.Unit)</h2>
+@if (product.Quantity == 0) { <p class="out">Stokta yok. Stok eklendiğinde ürün tekrar kullanılabilir.</p> }
+@if (!product.IsActive) { <p class="out">Ürün pasif. Geçmişi korunur; stok işlemi için önce etkinleştirin.</p> }
+<p>Satış: <strong>@Pricing.Money(price.Net) TL</strong> + @Pricing.Money(price.Vat) TL KDV (%@product.VatRate.ToString("0.##")) = <strong>@Pricing.Money(price.Gross) TL</strong> / @Pricing.UnitLabel(product.Unit)</p></section>
+<form method="post" class="panel">
+    <h2>Stok işlemi</h2><div asp-validation-summary="All" class="error" role="alert"></div><input asp-for="OperationId" type="hidden" />
+    <div class="form-grid"><label>İşlem<select asp-for="Kind"><option value="RECEIPT">Stok girişi</option><option value="ADJUSTMENT">Gerekçeli düzeltme</option><option value="COUNT">Sayım (mevcut miktar)</option></select></label>
+    <label>Miktar (@Pricing.UnitLabel(product.Unit))<input asp-for="Quantity" inputmode="numeric" required /></label></div>
+    <label>Açıklama<input asp-for="Reason" maxlength="300" required /></label>
+    <p>Girişte pozitif tam sayı girin. Düzeltmede eksiltmek için eksi kullanın (ör. -1). Sayımda rafta saydığınız toplam miktarı girin (sıfır olabilir). Bu işlem satış fişi oluşturmaz.</p><button>Stok işlemini kaydet</button>
+</form>
+<h2>Stok geçmişi</h2><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>İşlem</th><th>Miktar</th><th>Alış (KDV hariç / birim)</th><th>Açıklama</th></tr></thead><tbody>
+@foreach (var movement in Model.Movements) { <tr><td>@GurBoya.Web.Pages.Products.DetailsModel.LocalTime(movement.OccurredAt)</td><td>@(movement.Kind == "RECEIPT" ? "Stok girişi" : movement.Kind == "COUNT" ? "Sayım" : "Düzeltme")</td><td>@movement.Delta</td><td>@Pricing.Money(movement.PurchaseNet) TL</td><td>@movement.Reason</td></tr> }
+</tbody></table></div>
+<h2>Fiyat geçmişi</h2><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Girilen alış / satış</th><th>KDV seçimi / oran</th><th>Açıklama</th></tr></thead><tbody>
+@foreach (var change in Model.Prices) { <tr><td>@GurBoya.Web.Pages.Products.DetailsModel.LocalTime(change.OccurredAt)</td><td>@Pricing.Money(change.PurchasePrice) / @Pricing.Money(change.SalePrice) TL</td><td>@(change.VatIncluded ? "KDV dahil" : "KDV ekle") / %@change.VatRate.ToString("0.##")</td><td>@change.Reason</td></tr> }
+</tbody></table></div>
+<nav class="pager">
+@if (Model.HistoryPage > 1) { <a asp-route-id="@product.Id" asp-route-HistoryPage="@(Model.HistoryPage - 1)">Önceki geçmiş</a> }
+<span>Geçmiş sayfası @Model.HistoryPage</span>
+@if (Model.HasNextHistory) { <a asp-route-id="@product.Id" asp-route-HistoryPage="@(Model.HistoryPage + 1)">Sonraki geçmiş</a> }
+</nav>

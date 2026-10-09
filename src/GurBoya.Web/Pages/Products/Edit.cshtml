@@ -1,0 +1,38 @@
+@page "{id:long?}"
+@model GurBoya.Web.Pages.Products.EditModel
+@using GurBoya.Web.Inventory
+@{ ViewData["Title"] = Model.Id.HasValue ? "Ürün düzenle" : "Yeni ürün"; }
+<a asp-page="Index">← Ürünler</a><h1>@ViewData["Title"]</h1>
+<form method="post" class="panel">
+    <div asp-validation-summary="All" class="error" role="alert"></div>
+    <input asp-for="Input.RequestId" type="hidden" /><input asp-for="Input.Version" type="hidden" />
+    <div class="form-grid">
+        <label>Ürün adı<input asp-for="Input.Name" maxlength="160" required /></label>
+        <label>Ürün türü<select asp-for="Input.IsPaint"><option value="true">Boya</option><option value="false">Diğer ürün</option></select></label>
+        <label>Marka<input asp-for="Input.Brand" maxlength="100" placeholder="Elle girin" /></label>
+        <label>Renk / renk kodu<input asp-for="Input.Color" maxlength="100" placeholder="Örn. beyaz veya renk kodu" /></label>
+        <label>Ambalaj boyutu (litre)<input asp-for="Input.PackageLiters" inputmode="decimal" placeholder="Örn. 2,5" /></label>
+        <label>Stok ve fiyat birimi<select asp-for="Input.Unit"><option value="BOX">Kutu</option><option value="PIECE">Adet</option><option value="GRAM">Gram</option></select></label>
+        <label>Kategori<input asp-for="Input.Category" maxlength="100" placeholder="Elle girin" /></label>
+        <label>Barkod (isteğe bağlı)<input asp-for="Input.Barcode" maxlength="80" /></label>
+    </div>
+    <p>Boya kutu olarak takip edilir. Diğer ürünlerde kutu, adet veya gram seçebilirsiniz; tüm miktarlar tam sayıdır.</p>
+    <h2>Fiyat ve KDV</h2><p>Fiyatı seçilen birim başına TL olarak girin. Binlik ayırıcı kullanmayın; ondalık virgül veya nokta kabul edilir.</p>
+    <div class="form-grid">
+        <label>Alış fiyatı (TL / birim)<input asp-for="Input.PurchasePrice" inputmode="decimal" required /></label>
+        <label>Satış fiyatı (TL / birim)<input asp-for="Input.SalePrice" inputmode="decimal" required /></label>
+        <label>KDV seçimi<select asp-for="Input.VatIncluded"><option value="false">KDV ekle</option><option value="true">KDV dahil</option></select></label>
+        <label>KDV oranı (%)<input asp-for="Input.VatRate" inputmode="decimal" required /></label>
+    </div>
+    <button type="submit" asp-page-handler="Preview" class="secondary">Fiyat ayrıntısını göster</button>
+    @if (Model.Sale is not null && Model.Purchase is not null)
+    {
+        <div class="table-wrap"><table><thead><tr><th></th><th>KDV hariç</th><th>KDV</th><th>KDV dahil toplam</th></tr></thead><tbody>
+        <tr><th>Alış</th><td>@Pricing.Money(Model.Purchase.Net) TL</td><td>@Pricing.Money(Model.Purchase.Vat) TL</td><td>@Pricing.Money(Model.Purchase.Gross) TL</td></tr>
+        <tr><th>Satış</th><td>@Pricing.Money(Model.Sale.Net) TL</td><td>@Pricing.Money(Model.Sale.Vat) TL</td><td>@Pricing.Money(Model.Sale.Gross) TL</td></tr></tbody></table></div>
+    }
+    <label class="check"><input asp-for="Input.IsActive" /> Ürün aktif</label>
+    <label>Değişiklik açıklaması @(Model.Id.HasValue ? "(zorunlu)" : "(isteğe bağlı)")<input asp-for="Input.Reason" maxlength="300" /></label>
+    <p>Fiyat değişiklikleri geçmişte saklanır. Stok geçmişi olan ürünün türü, birimi ve ambalajı değiştirilemez.</p>
+    <button type="submit">Ürünü kaydet</button>
+</form>

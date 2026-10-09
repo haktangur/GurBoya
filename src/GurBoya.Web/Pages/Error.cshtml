@@ -1,5 +1,6 @@
 @page
+@model GurBoya.Web.Pages.ErrorModel
 @{ ViewData["Title"] = "İşlem tamamlanamadı"; }
 <h1>İşlem tamamlanamadı.</h1>
-<p>Beklenmeyen bir sorun oluştu. Lütfen yeniden deneyin.</p>
+<p>@Model.Message</p>
 <a class="button" asp-page="/Index">Başlangıca dön</a>

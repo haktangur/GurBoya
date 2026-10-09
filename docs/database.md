@@ -1,12 +1,30 @@
 # GürBoya — PostgreSQL veritabanı taslağı
 
-Durum: Veritabanı teknolojisi onaylı, aşağıdaki ilişkisel model öneridir; iş şeması/migration’ları oluşturulmadı. F1-B’de yalnızca altyapı şemaları ve boş başlangıç migration’ı eklendi. İş kuralları ilgili fazdan önce netleştirilecek. F1-A yalnızca veritabanı altyapısını kurar; bu belgedeki bütün tabloları oluşturmaz.
+Durum: F2 ürün/stok ve kullanıcı şeması eklendi. F2 uygulanan model bölümü güncel kaynaktır; sonraki fazların ilişkisel modeli öneridir. İş kuralları ilgili fazdan önce netleştirilecek. F1-A yalnızca veritabanı altyapısını kurar; bu belgedeki bütün tabloları oluşturmaz.
+
+## F2 uygulanan model
+
+Bu bölüm F2 için geçerli uygulamayı tanımlar; aşağıdaki eski iş modeli tabloları sonraki fazlar için taslak olarak korunur.
+
+- app.products: serbest metin marka/renk/kategori, isteğe bağlı benzersiz barkod, boya/tür, litre, BOX/PIECE/GRAM, alış/satış giriş fiyatı, KDV seçimi/oranı, aktiflik, stok bakiyesi ve version.
+- app.stock_movements: append-only giriş/düzeltme/sayım hareketleri; işlem UUID, miktar farkı, gerekçe, işlem zamanı, kullanıcı ve o andaki KDV hariç alış fiyatı.
+- app.price_changes: ilk fiyat ve her fiyat/KDV değişikliğinin snapshot'ı; önceki satırlar değişmez. Kart fiyatı geçmiş hareket maliyetini değiştirmez.
+- app.operations: istek hash'i ve sonuç ürün kimliği; UUID üzerinde transaction advisory lock ile aynı isteğin tekrarı tek sonuç üretir, farklı içerikle tekrar reddedilir.
+- ASP.NET Identity'nin app şemasındaki standart kullanıcı/claim/login/token tabloları: tek yonetici hesabı, güvenilir parola özeti ve kilitleme bilgisi; herkese açık kayıt uçları yok.
+
+Stok tam sayıdır (bigint), gram hassasiyeti 1'dir; kesirli giriş sunucuda reddedilir. Ürün başına stok aralığı 0–1.000.000.000; miktar değiştiren tüm uygulama yolları tek transaction içinde ürün satırını FOR UPDATE kilitler. DB BEFORE INSERT hareket trigger'ı da satırı kilitleyip aktiflik/negatif stok kontrolünden sonra bakiyeyi ve version'ı günceller. Hata olursa hareket/bakiye/işlem kaydı birlikte rollback olur. Doğrudan bakiye güncelleme, geçmiş silme/değiştirme ve geçmişli ürünün birim/tür/litre değişimi DB seviyesinde engellenir. İşlem hesabının hareket/fiyat/istek geçmişi UPDATE/DELETE yetkileri kaldırılmıştır.
+
+Sayım mutlak mevcut miktarı alır; kilit altındaki bakiyeden fark hesaplanır. Sıfır sayım ve aynı miktara sayım kaydı desteklenir. Yinelenen sayım, sonraki stok girişini geri almaz: aynı işlem kimliği eski sonucu döndürür. Pasif ürün geçmişi görünür fakat stok yazılamaz; kart yeniden aktif yapılabilir.
+
+KDV: kullanıcı başlangıç oranını %15 seçti. KDV ekle: net=girilen fiyat, toplam=round4(net×(1+oran/100)), KDV=toplam−net. KDV dahil: toplam=girilen fiyat, net=round4(toplam/(1+oran/100)), KDV=toplam−net. Decimal hesap, dört ondalık basamak, MidpointRounding.AwayFromZero; arayüz en az iki/en fazla dört basamak gösterir. Ürün oranı değişebilir; eski fiyat kayıtlarının oranları korunur. Fiş toplamlarının iki basamaklı yuvarlaması F3 kapsamında ayrıca tasarlanır.
+
+InitialInfrastructure korunur; InventoryAndOwner yeni kullanıcı/ürün/geçmiş tablolarını ve DB korumalarını, StockCount sayım kısıtlarını ekler. Boş veya mevcut F1-B DB açık migrate komutuyla yükseltilir; web açılışı şema değiştirmez. F1-B'deki app DML varsayılanları yeni tablolara uygulanır, geçmiş tablolarının yetkileri migration'da daraltılır.
 
 ## Tipler ve ortak kurallar
 
 Öneri: Yerel tek işletme için PK bigint generated identity; dış isteğin tekrar kimliği UUID. Foreign key'ler geçmiş iş kayıtlarında ON DELETE RESTRICT. Katalogda is_active ile pasifleştirme; hareket/satışlarda soft delete yapılmaz. Para birimi başlangıç için TRY önerisi, onay bekliyor. Farklı para birimindeki toplamlar kur modeli olmadan birleştirilmez.
 
-Miktar numeric(18,3), ambalaj litresi numeric(12,3), birim fiyat/maliyet numeric(18,4), para toplamları numeric(18,2) önerilir. Pozitif/negatif sınırlar alan amacına göre CHECK ile korunur. Adet ve kutu tam sayı olmalıdır. Gramın 0,001 hassasiyeti teknik üst sınır önerisidir; gerçek kullanım doğrulanmalıdır. Float/money yerine numeric; uygulama ve API'de eşdeğer kesin ondalık hesap/aktarımı gerekir. İzin verilen değerler sonlu olmalı, NaN/Infinity gibi özel numeric girdileri reddedilmelidir.
+Miktar numeric(18,3), ambalaj litresi numeric(12,3), birim fiyat/maliyet numeric(18,4), para toplamları numeric(18,2) önerilir. Pozitif/negatif sınırlar alan amacına göre CHECK ile korunur. Adet ve kutu tam sayı olmalıdır. Bu eski taslaktaki 0,001 gram önerisi K15 ile değişti; uygulamada 1 gram hassasiyeti geçerlidir. Float/money yerine numeric; uygulama ve API'de eşdeğer kesin ondalık hesap/aktarımı gerekir. İzin verilen değerler sonlu olmalı, NaN/Infinity gibi özel numeric girdileri reddedilmelidir.
 
 Olay zamanları timestamptz olarak saklanır; raporlar Europe/Istanbul iş günü sınırlarıyla hesaplanır. Oluşturulma ve işlem tarihi ayrı tutulur; geri tarihli işlem yetkisi/rapor etkisi kararlaştırılır. Audit zamanı sunucudan gelir. Katalog düzenlemesinde bigint version ile iyimser eşzamanlılık kontrolü önerilir; PostgreSQL'de MSSQL rowversion tipi varmış gibi tasarım yapılmaz.
 
