@@ -1,6 +1,6 @@
 # GürBoya — İlerleme
 
-Son güncelleme: 9 Ekim 2026.
+Son güncelleme: 10 Ekim 2026.
 
 ## Tamamlanan hazırlık
 
@@ -121,9 +121,13 @@ Windows/AMD64 çalıştırma, OS açılışı, tam internet kesintisi ve görsel
 
 ## Aktif ve sonraki görev
 
-F2 tamamlandı ve feat/f2-inventory dalına gönderildi. Kod commit’i edaf19383869094c8d8a27bd8c9db4a967547907; 10 Ekim 2026 tarihinde git ls-remote ile origin dal kimliği eşleşmesi doğrulandı. Sonraki F3 için indirim/fiş yuvarlaması, iade/hasarlı ürün ve renklendirme ücreti kuralları netleştirilecek. Ürün fiyatlarının mevcut KDV seçimi bu soruları engellemeden uygulanmıştır.
+F3 satış/iade tamamlandı; ayrıntılı 10 Ekim kanıtları aşağıdadır. Çalışma dalı feat/f2-inventory korunur; main geridedir. Sıradaki iş F4 rapor/pilot/yedek kapsamını netleştirmektir. Önceki F2 kod commit’i edaf19383869094c8d8a27bd8c9db4a967547907 ve F2 devir commit’i d5ad5b57e714f92f8cf9e3b3c974c18273ff58b6 geçmişte korunur.
 
 ## Kalan kararlar
+
+10 Ekim F3 hazırlığında yerel HEAD ve GitHub feat/f2-inventory kimliği d5ad5b57e714f92f8cf9e3b3c974c18273ff58b6 olarak eşleşti; başlangıç çalışma ağacı temizdi. Uzak main 0057e440fa5b93b4cd1489e60224b1cf48e8d69d ile geridedir. Docker DB healthy, web çalışır ve readiness ready olarak doğrulandı. İlk sandbox ağ/Docker denemeleri erişemedi; izinli salt okunur kontroller başarılı oldu. Veri, .env, hesap ve volume değiştirilmedi; kurulum/migration tekrarlanmadı.
+
+Oturumun ilk hazırlık adımında kullanıcı yanıtları K19–K23 olarak kaydedildi ve takip soruları soruldu. Aynı oturumda gelen takip yanıtlarıyla kapsam netleşti; aşağıdaki F3 uygulaması ve doğrulaması tamamlandı.
 
 [project_context.md](project_context.md) açık soruların kaynağıdır. Windows gereksinimleri, işletim sistemi açılışı ve çevrimdışı pilot F4 öncesinde doğrulanmalı. Hassas notlar ortak belgelere yazılmaz.
 
@@ -132,3 +136,46 @@ F2 tamamlandı ve feat/f2-inventory dalına gönderildi. Kod commit’i edaf1938
 Docker yeniden başladıktan sonra db healthy ve web çalışır; /health/ready HTTP 200 / ready doğrulandı. İşletme verisi değiştirilmedi. Eski F1-A başlangıç promptu güncel [devam promptuyla](codex_start_prompt.md) değiştirildi; [devir notu](next_session.md), bağlam ve okuma bağlantıları güncellendi. Tamamlanan aşamalar tekrar başlatılmamalı; F3 iş kuralları kullanıcı yanıtlarını bekler.
 
 Bu kapanış yalnızca Markdown değişikliğidir; yukarıdaki kod testleri geçerli olup tam test paketi tekrar çalıştırılmadı. Yerel Markdown bağlantıları, diff biçimi ve teslim belgelerinde yerel parolaların bulunmaması kontrolleri geçti. Push öncesi git fetch origin sonrası dal ayrışması 0/0 olarak doğrulandı. Devir commit'i aynı çalışma dalına normal push ile gönderilir; son commit kimliği ve uzak eşleşmesi teslim yanıtında bildirilir.
+
+
+## F3 — satış, indirim, renklendirme ve iade (10 Ekim 2026)
+
+K19–K23 ve takip yanıtları uygulandı. Satış listesi/yeni satış/detay ekranları; hem satır hem fişte TL veya yüzde indirim; boya satırının tamamına elle KDV dahil renklendirme ücreti; renk snapshot'ı; nakit/kart ile ödeme sonrası tamamlama. Tamamlanmamış form stok değiştirmez ve kalıcı taslak değildir. Renklendirilmiş boya, ücret 0 olsa bile iade/iptal edilemez. Sağlam iade stok dönüşlü, hasarlı iade stok dönüşsüzdür. İptal kalan miktarları geri döndüren ayrı belgedir; geçmiş silinmez. Cari/veresiye/parçalı ödeme, POS entegrasyonu veya pigment eklenmedi.
+
+Satış toplamı yalnız kuruş altı kadar müşteri lehine aşağı yuvarlanır, kuruş dağıtımı satır/fiş toplamını korur. Birikimli kısmi iade yukarı kuruşa tamamlanır, önceki iadeler düşülür; özgün tutar/net/KDV aşılmaz. Kaynak fiyatlar, renk, ad ve oranlar geçmişte korunur. Satış/iade/stok/UUID kaydı tek transaction; ürünler kimlik sırasıyla, iadede önce kaynak satış kilitlenir. Modelde yeni dört tablo ve stok kaynakları vardır. Yeni `20261010175529_SalesAndReturns`; önceki migration dosyaları değişmedi.
+
+### F3 doğrulama kanıtları
+
+| Kontrol | Sonuç |
+|---|---|
+| Locked restore, Release build, format, EF model uyumu | Geçti; 0 hata/uyarı, yeni bağımlılık yok |
+| F1-B/F2 regresyonları | Giriş/CSRF/parola/kilit, KDV, stok/sayım/geçmiş, oturum kalıcılığı ve DB kesinti/toparlanma geçti |
+| Satış önizleme/ödeme | Önizlemede stok değişmedi; nakit/kart seçmeden tamamlama ve kesirli miktar reddedildi |
+| İndirim/renklendirme | Satır yüzde + fiş TL, fiş yüzde, KDV dahil ek ücret, kart/nakit, renk snapshot'ı ve aşırı indirim reddi geçti |
+| Müşteri lehine kuruş | 30,015 → 30,01 TL; 10,01+10,00+10,00 kısmi iade; iki 0,005 TL satır → 0,01; ücretsiz ve çok küçük iadeler geçti |
+| Renklendirilmiş boya | Pozitif ve sıfır ücretli renklendirilmiş satırların iade/iptali reddedildi |
+| Tekrar ve eşzamanlılık | Aynı satış/iade/iptal tek kayıt; farklı içerik aynı UUID reddi; son stok ve kalan iade yarışında yalnız biri başarılı |
+| Eski form ve toplu miktar | Sürüm değişimi reddi; aynı ürünün birden fazla satırı birlikte stok kontrolü; yetersiz ikinci satırda kısmi satış yok |
+| Sağlam/hasarlı/pasif iade | Hasarlı iadede stok artmadı; sağlam iade döndü; pasif kart etkinleşmeden stok iadesi aldı; fazla/yabancı satış satırı reddedildi |
+| Hata enjeksiyonu | Satış ve iade stok yazımında zorlanan hatada başlık/satır/hareket/operation/bakiye tamamen rollback; aynı istek sonra başarılı |
+| DB geçmiş ve bütünlük | UPDATE/DELETE, eksik başlık ve tamamlanmış belgeye ek satır reddedildi; stok defteri=bakiye |
+| Ayrı DB restore | Stok toplamı, satış/iade kayıt sayıları ve tutarları, miktarlar ve trigger sayısı eşleşti |
+| F1-A regresyon | 3 sentetik kayıt/150.00 toplam, kalıcılık ve ayrı DB restore geçti |
+
+Nihai `bash scripts/test-app.sh` çıkış 0; proje `gurboya-f1b-2ffb7317e066`, kanıt dizini `.tmp/f1-b.cUaZe3`, çalışma günlüğü `.tmp/f3-app-final.log`. `bash scripts/test-postgres.sh` çıkış 0; proje `gurboya-f1a-64220046992e`, dizin `.tmp/f1-a.V6cpVE`, günlük `.tmp/f3-postgres-run.log`. Test konteyner/ağları kaldırıldı, volume'ları korundu. Test verisi normal kurulumda oluşturulmadı.
+
+İlk testte deferred SQL toplam karşılaştırması çok sütunlu alt sorgu hatası verdi; ROW ifadesiyle düzeltildi ve paket tekrar geçti. Son incelemede belgeye ek satır korumasının migration'a eklenişi düzeltildi; test artık özgül ret mesajını da denetler, nihai paket yeniden geçti. İlk başarısız deneme başarılı sayılmadı. Son ek kontrolde yeni SDK konteynerinde --no-restore derlemesi NuGet önbelleği olmadığı için başarısız oldu; locked restore + format doğrulaması + Release build yeniden çalıştırıldı ve 0 hata/uyarıyla geçti. Bir Python sözdizimi kontrolü sandbox dışındaki varsayılan cache yoluna yazamadı; yerel `.tmp/pycache` ile yeniden geçti.
+
+### F3 yerel yükseltme
+
+Web durduruldu; `backups/before-f3-37d7cf1481f2.dump` adlı yeni özel izinli yedek alındı. `before_f3_37d7cf1481f2` adlı yeni ayrı DB'ye --no-owner/--no-privileges ile restore edildi. Mevcut 8 app tablosunun tüm satır içerik özetleri ve 3 migration kaydı eşleşti. F3 migration'ı uygulandıktan sonra aynı mevcut tablo içerikleri tekrar eşleşti; mevcut kullanıcı/şifre özeti dahil veriler korundu, satış/iade tablosu boş kaldı. `.env` dosyasının içerik hash'i değişmedi. Admin/db-setup tekrarlanmadı, volume silinmedi, canlı DB'ye restore yapılmadı.
+
+Migration geçmişi 4 kayıt; web yeniden başlatıldı ve localhost:5080/health/ready HTTP 200 / ready doğrulandı. Sonuç manifesti `.tmp/f3-upgrade-result.json` Git dışındadır. Yeni yedek F3 öncesi veriyi içerir; ilerideki işlemler için güncel yedek alınmalıdır.
+
+Windows/AMD64, işletim sistemi açılışı, tam internet kesintisi ve görsel tarayıcı kontrolü yapılmadı. Bilgisayar kullanım envanterinde bağlı browser sağlayıcısı bulunmadı; native tarayıcı erişimi açılmadı. HTTP/form testleri görsel kabul değildir. Mac F3 tamamlanması Windows canlı kullanım kabulü değildir.
+
+Ortak belgeler, F4 devam promptu ve devir notu güncellendi. Commit/push kimliği aşağıdaki Git kapanışında ve teslim yanıtında doğrulanır. Sonraki görev F4 öncesi rapor kapsamı, Windows hedefi, yedek sıklığı/saklama/harici ortam ve veri kaybı hedefini kullanıcıyla netleştirmektir.
+
+### Git kapanışı
+
+F3 kod/test/tasarım commit'i `7fe048a822de098f0d8703f8f299fb71ee9eb383`. Bu ilerleme ve F4 devir belgeleri onun üzerine ayrı docs commit'i olarak kaydedilir. Push öncesi origin çalışma dalı `d5ad5b57e714f92f8cf9e3b3c974c18273ff58b6` olarak yeniden kontrol edildi; başka uzak değişiklik görülmedi. Her iki commit çalışma dalına normal push ile gönderilecek; son devir kimliği ve uzak eşleşmesi teslim yanıtında bildirilecek. Commit öncesi sır/dışlama, belge bağlantıları ve staged diff kontrolleri geçti.

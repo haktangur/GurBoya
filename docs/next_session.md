@@ -1,65 +1,49 @@
-# F2 kapanışı ve yeni sohbet devri
+# F3 kapanışı ve yeni sohbet devri
 
-Devir tarihi: 10 Ekim 2026. Önce [AGENTS.md](AGENTS.md), ardından onun okuma sırası uygulanır. Kullanıcıya verilecek metin [devam promptundadır](codex_start_prompt.md).
+Devir tarihi: 10 Ekim 2026. Önce [AGENTS.md](AGENTS.md), ardından [devam promptunu](codex_start_prompt.md) ve onun okuma sırasını uygula.
 
-## Tamamlanan aşama ve Git
+## Tamamlanan kapsam ve Git
 
-F1-A altyapı, F1-B uygulama iskeleti ve F2 ürün/stok/şifreli giriş Mac ARM64 üzerinde tamamlandı. F2 kod commit'i `edaf19383869094c8d8a27bd8c9db4a967547907`, çalışma dalı `feat/f2-inventory`, origin `https://github.com/haktangur/GurBoya.git`. 10 Ekim'de uzak dal kimliği bu kod commit'iyle eşleşti; bu devir belgeleri onun üzerine ayrı commit olarak eklenir. Son belge commit'ini `git log` ve uzak dal ile kontrol et; sabit kimliğe reset yapma.
+F1-A/F1-B/F2/F3 Mac ARM64 üzerinde tamamlandı. Çalışma dalı `feat/f2-inventory`, origin `https://github.com/haktangur/GurBoya.git`. F3, F2 devir commit'i `d5ad5b57e714f92f8cf9e3b3c974c18273ff58b6` üzerinden geliştirildi. F3 kod/test/tasarım commit'i `7fe048a822de098f0d8703f8f299fb71ee9eb383`; devir belgeleri bunun üzerindedir. En son F3 ve belge commit'lerini `git log` ve `git ls-remote` ile kontrol et; sabit eski kimliğe reset yapma. main geliştirmeleri içermez. Çalışma dalına normal push yetkilidir; force push yoktur.
 
-F1-B `84692fb`, F1-A `2649482` bu dalın geçmişindedir. Geliştirme dalları main'e birleştirilmedi; main güncel uygulama tabanı değildir. Yeni iş dalı gerekiyorsa uzak güncellemeleri kontrol ederek tamamlanan kod ve devir belgelerinin son commit'inden aç. Normal push yetkisi devam eder; force push yoktur. Kullanıcı değişikliklerini koru.
+- Ürün/stok: elle boya marka/litre/renk/fiyat, diğerlerinde kutu/adet/gram; tam sayı, eksi stok engeli; fiyat/stok geçmişi ve sayım.
+- Tek şifreli yonetici hesabı; şifre değişimi, CSRF ve kalıcı oturum anahtarları.
+- KDV ekle/dahil, kullanıcı seçimi başlangıç %15, ürün kartında değişebilir.
+- F3: satır ve fişte yüzde/TL indirim; boya satırına KDV dahil elle renklendirme ücreti ve renk; nakit/kart ödeme alındığında tamamlama; sağlam/hasarlı iade ve ters belgeli iptal.
+- Renklendirilmiş boya ücret 0 olsa da iade/iptal edilemez. Ücret kartın fiyatını kalıcı değiştirmez, tüm satış satırına aittir.
+- Fiş yalnız kuruş altı kadar aşağı, birikimli kısmi iade yukarı yuvarlanır; satır payları toplamı korur, iadeler özgün bedeli aşamaz. Detaylar decisions.md ve database.md'de.
+- Tamamlanmamış sepet formdadır; DB taslağı değildir, stok ayırmaz, sayfa kapanınca kaybolur. Cari/veresiye/parçalı tahsilat, POS entegrasyonu ve pigment yoktur.
 
-## Çalışan yerel kurulum
+## Yerel kurulum ve koruma
 
-10 Ekim kontrolünde DB healthy, web çalışır ve `GET http://localhost:5080/health/ready` HTTP 200 / ready döndü. Uygulama yalnızca `127.0.0.1:5080` üzerinde; DB hosta yayımlanmaz. Giriş: `http://localhost:5080/Account/Login`.
-
-Tek hesap `yonetici`; ekran yalnızca şifre ister. İlk giriş notu `.local-notes/ilk-giris.txt` içindedir; şifre sonradan değiştirilmiş olabilir. `.env`, bu not, `.tmp/` ve `backups/` Git dışındadır. Sırları okumak/çıktılamak normal durum kontrolü için gerekli değildir. Git klonu yerel veri, sır veya Docker volume'larını taşımaz; başka bilgisayar kurulumu ayrı iştir.
-
-Bu makinede F2 yükseltmesi ve yönetici oluşturma yapıldı. `.env` dosyasını ezme; db-setup/admin/migrate komutlarını gereksiz yere tekrarlama. 9 Ekim teslim kontrolünde ürün listesi boştu; kullanıcı sonradan veri girmiş olabilir. Güncel veriyi boş veya silinebilir kabul etme.
-
-Depo kökünden durum/başlatma:
+Uygulama `http://localhost:5080`, yalnız 127.0.0.1'e açık. DB hosta yayımlanmaz. `.env`, `.local-notes/`, `.tmp/` ve `backups/` Git dışındadır. Sırları durum kontrolü için okuma/çıktılama. İlk giriş notu güncel şifre olmayabilir; hesabı yeniden oluşturma veya sıfırlama. İşletme verisini boş/silinebilir varsayma. Volume silme ve canlı DB üstüne restore yoktur.
 
 ```sh
 docker compose -f compose.yaml -f compose.app.yaml ps
 curl --fail --silent http://localhost:5080/health/ready
-# Yalnızca servisler kapalıysa, mevcut yerel imajlarla:
+# Yalnız servisler durmuşsa, mevcut imajlarla:
 docker compose -f compose.yaml -f compose.app.yaml up -d --pull never db web
 ```
 
-Önceki yükseltme yedeği `backups/before-f2-b2cb25677a80.dump`; ayrı `before_f2_b2cb25677a80` DB'sine dönüşü doğrulandı. Bu F2 öncesi yedektir, güncel verinin yedeği değildir. Sonraki şema değişiminde yeni benzersiz yedek ve ayrı DB'de dönüş provası gerekir. Volume silme ve canlı DB üstüne restore yapma. İşletim ayrıntıları [README](README.md) içinde.
-
-## Korunacak uygulama ve kararlar
-
-Razor Pages + EF Core + Npgsql onaylıdır. SDK 10.0.401, runtime/EF/Identity 10.0.9, Npgsql 10.0.3; Dockerfile ve lock dosyaları sabittir. Host SDK'sını değiştirmeden Docker SDK ile doğrulama yapıldı.
-
-- Boya marka/litre/renk/fiyat elle; litre ambalaj hacmi, stok/fiyat kutu başına.
-- Diğer ürünler kutu/adet/gram; miktar tam sayı, gram hassasiyeti 1. Negatif stok engellenir, stok girişi ürünü tekrar kullanılabilir kılar.
-- TL birim fiyatında KDV ekle/dahil; başlangıç %15 kullanıcı tercihi, karttan değişebilir. Net/KDV/toplam ayrı, decimal dört basamak. Fiş yuvarlaması henüz onaylanmadı.
-- Tek şifreli hesap; ürün arama/düzenleme/pasifleştirme, stok giriş/düzeltme/sayım, değişmez fiyat/stok geçmişi var. Satış/iade/cari/tahsilat ve pigment modülü yok.
-
-Kod haritası: `src/GurBoya.Web/Inventory/` iş kuralları; `Pages/Products/` ürün/stok ekranları; `Pages/Account/` giriş/şifre; `Data/AppDbContext.cs` model; `Data/Migrations/` şema. [database.md](database.md) içindeki “F2 uygulanan model” ve kod geçerlidir; eski öneri tablolarını topluca oluşturma.
-
-Uygulanmış ve değiştirilmeyecek migration'lar:
+Uygulanmış migration'lar:
 
 - `20261007231325_InitialInfrastructure`
 - `20261009120632_InventoryAndOwner`
 - `20261009121326_StockCount`
+- `20261010175529_SalesAndReturns`
 
-Yeni şema yeni migration gerektirir; web açılışı migration çalıştırmaz. Stok transaction, ürün kilidi, UUID tekrar koruması, bakiye mutabakatı ve DB geçmiş korumalarını koru.
+Uygulanmış dosyaları değiştirme; yeni şema yeni migration gerektirir. Web başlangıcı migration çalıştırmaz. Son yerel yükseltmenin benzersiz yedek/ayrı restore DB kanıtı progress.md'dedir. Sonraki değişiklik için yeniden güncel yedek gerekir; eski yedeği güncel veri sanma.
 
-## Test durumu ve sınırlar
+## Kod ve test haritası
 
-F2 kod commit'i için `bash scripts/test-app.sh` ve `bash scripts/test-postgres.sh` çıkış 0; locked restore/Release build, format, EF model uyumu geçti. Gerçek PostgreSQL/HTTP testleri giriş/CSRF, KDV, tekrar gönderim, eşzamanlı son stok, sayım, geçmiş, rollback, mutabakat, ayrı DB restore ve oturum kalıcılığını kapsar. Ayrıntılı sonuç/yerel kanıt yolları [progress.md](progress.md) içinde. Testler izole projelerde çalışır; volume'lar bilinçli korunur, otomatik temizlikle silinmez.
+`Inventory/` ürün/stok, `Sales/` satış/iade/decimal hesap, `Pages/Sales/` satış ekranları; `Data/AppDbContext.cs`, `Sales/SalesModel.cs` ve `Data/Migrations/` model/şema. Razor Pages + EF Core + Npgsql; sabit SDK 10.0.401, runtime/EF 10.0.9 ve Npgsql 10.0.3. Ek bağımlılık eklenmedi.
 
-Devir yalnızca belge değişikliğidir; tam kabul paketi tekrar çalıştırılmadı. Yerel hazır olma kontrolü yenilendi; belge bağlantıları, Git diff ve yerel parola dışlama kontrolleri geçti. Windows/AMD64 çalıştırma, OS açılışı, tam internet kesintisi ve görsel tarayıcı kontrolü yapılmadı. Önceki Safari erişimi verilmedi; HTTP testini görsel test sayma. Mac F2 tamamlanması Windows canlı kullanım kabulü değildir.
+Satış ve iade belge/satır/stok/UUID kayıtları tek transaction'dır. UUID/hash replay, kaynak satış ve sıralı ürün kilitleri, eski form sürümü kontrolü ve DB deferred bütünlük trigger'ları korunmalı. Renklendirilmiş boya ve iade sınırı DB'de de korunur. Pasif ürüne sağlam iade stoğu dönebilir, kart etkinleştirilmez. Satış toplamını kasa bakiyesi veya maliyet yöntemi olmadan brüt kâr olarak sunma.
 
-## Sonraki sohbetin ilk işi
+`bash scripts/test-app.sh`: F1-B/F2 + `scripts/test-sales.py`; izole gerçek PostgreSQL/HTTP, KDV/indirim/renklendirme/iade, tekrarlar, yarış, rollback hata enjeksiyonu, değişmezlik ve restore. `bash scripts/test-postgres.sh`: F1-A kalıcılık/restore. Son sonuçlar progress.md'de. Testler normal DB'de çalışmaz; test volume'ları otomatik silinmez.
 
-F3 satış/iade koduna geçmeden kullanıcıya anlaşılır şekilde şu iş kurallarını sor; yanıtları [decisions.md](decisions.md) ve kapsam belgelerine işle:
+Windows/AMD64 çalıştırma, OS açılışı, tam internet kesintisi ve görsel tarayıcı kontrolü yapılmadı. Bu oturumdaki bilgisayar envanterinde bağlı browser sağlayıcısı yoktu. HTTP testlerini görsel test sayma; Mac kabulünü Windows canlı kabulü sayma.
 
-1. İndirim olacak mı; TL/yüzde, ürün satırı/fiş toplamı seçeneklerinden hangileri gerekli?
-2. Satışta net/KDV/toplam ve kısmi iade kuruşları nasıl yuvarlanacak? Somut örnekle öneri sun; F2 birim fiyatındaki dört basamağı fiş kuralı sanma.
-3. Renklendirilmiş boya iadesi kabul ediliyor mu? Hasarlı ürün iadesinde para iadesi ile satılabilir stoğa dönüş ayrı mı yönetilecek?
-4. Renklendirme için ayrı ücret alınacak mı?
-5. Nakit/kart/veresiye ve kısmi ödeme gerekiyor mu? Cari/tahsilat MVP için zorunlu mu?
+## Sıradaki F4
 
-Onaylı marka/birim/şifre/KDV kararlarını tekrar sorma. Belirsiz kurallara bağlı geliştirmeyi yanıt gelmeden başlatma. Satış toplamını kasa bakiyesi veya maliyet yöntemi seçilmeden brüt kâr olarak sunma. Bu devir aşamasında F3 kodu başlatılmadı.
+Kullanıcıyla temel stok/satış raporlarını, Windows sürümü/donanımı ve yedek saklama/harici ortam/kabul edilen veri kaybını netleştir. Sonra Windows pilotu, çevrimdışı açılış, kullanıcı kabulü ve yedek/kurtarma planını uygula. Onaylanmış F2/F3 iş kurallarını yeniden sorma, tamamlanmış modülleri baştan yazma. Cari/POS/pigment modülü kendiliğinden ekleme.
