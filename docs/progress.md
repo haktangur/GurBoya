@@ -121,8 +121,14 @@ Windows/AMD64 çalıştırma, OS açılışı, tam internet kesintisi ve görsel
 
 ## Aktif ve sonraki görev
 
-F2 teslim dalı feat/f2-inventory; commit/push ve uzak kimlik doğrulaması görev tesliminde bildirilir. Sonraki F3 için indirim/fiş yuvarlaması, iade/hasarlı ürün ve renklendirme ücreti kuralları netleştirilecek. Ürün fiyatlarının mevcut KDV seçimi bu soruları engellemeden uygulanmıştır.
+F2 tamamlandı ve feat/f2-inventory dalına gönderildi. Kod commit’i edaf19383869094c8d8a27bd8c9db4a967547907; 10 Ekim 2026 tarihinde git ls-remote ile origin dal kimliği eşleşmesi doğrulandı. Sonraki F3 için indirim/fiş yuvarlaması, iade/hasarlı ürün ve renklendirme ücreti kuralları netleştirilecek. Ürün fiyatlarının mevcut KDV seçimi bu soruları engellemeden uygulanmıştır.
 
 ## Kalan kararlar
 
 [project_context.md](project_context.md) açık soruların kaynağıdır. Windows gereksinimleri, işletim sistemi açılışı ve çevrimdışı pilot F4 öncesinde doğrulanmalı. Hassas notlar ortak belgelere yazılmaz.
+
+## Yeni sohbet devri — 10 Ekim 2026
+
+Docker yeniden başladıktan sonra db healthy ve web çalışır; /health/ready HTTP 200 / ready doğrulandı. İşletme verisi değiştirilmedi. Eski F1-A başlangıç promptu güncel [devam promptuyla](codex_start_prompt.md) değiştirildi; [devir notu](next_session.md), bağlam ve okuma bağlantıları güncellendi. Tamamlanan aşamalar tekrar başlatılmamalı; F3 iş kuralları kullanıcı yanıtlarını bekler.
+
+Bu kapanış yalnızca Markdown değişikliğidir; yukarıdaki kod testleri geçerli olup tam test paketi tekrar çalıştırılmadı. Yerel Markdown bağlantıları, diff biçimi ve teslim belgelerinde yerel parolaların bulunmaması kontrolleri geçti. Push öncesi git fetch origin sonrası dal ayrışması 0/0 olarak doğrulandı. Devir commit'i aynı çalışma dalına normal push ile gönderilir; son commit kimliği ve uzak eşleşmesi teslim yanıtında bildirilir.

@@ -22,7 +22,7 @@ InitialInfrastructure korunur; InventoryAndOwner yeni kullanıcı/ürün/geçmi�
 
 ## Tipler ve ortak kurallar
 
-Öneri: Yerel tek işletme için PK bigint generated identity; dış isteğin tekrar kimliği UUID. Foreign key'ler geçmiş iş kayıtlarında ON DELETE RESTRICT. Katalogda is_active ile pasifleştirme; hareket/satışlarda soft delete yapılmaz. Para birimi başlangıç için TRY önerisi, onay bekliyor. Farklı para birimindeki toplamlar kur modeli olmadan birleştirilmez.
+Öneri: Yerel tek işletme için PK bigint generated identity; dış isteğin tekrar kimliği UUID. Foreign key'ler geçmiş iş kayıtlarında ON DELETE RESTRICT. Katalogda is_active ile pasifleştirme; hareket/satışlarda soft delete yapılmaz. F2 para birimi TRY/TL olarak uygulandı; çoklu para birimi kapsamda değildir. Farklı para birimindeki toplamlar kur modeli olmadan birleştirilmez.
 
 Miktar numeric(18,3), ambalaj litresi numeric(12,3), birim fiyat/maliyet numeric(18,4), para toplamları numeric(18,2) önerilir. Pozitif/negatif sınırlar alan amacına göre CHECK ile korunur. Adet ve kutu tam sayı olmalıdır. Bu eski taslaktaki 0,001 gram önerisi K15 ile değişti; uygulamada 1 gram hassasiyeti geçerlidir. Float/money yerine numeric; uygulama ve API'de eşdeğer kesin ondalık hesap/aktarımı gerekir. İzin verilen değerler sonlu olmalı, NaN/Infinity gibi özel numeric girdileri reddedilmelidir.
 
@@ -60,7 +60,7 @@ Stok hareketlerinin toplamı tarihsel kaynaktır; inventory_balances hızlı eri
 
 Taslak satış durumu DRAFT ise stok etkisi yok; POSTED transaction tamamlanınca oluşur. İade/iptal ilk satış tutarlarını değiştirmez; net satış raporu iade belgelerini ayrıca düşer. İptal kalan iade edilmemiş miktar için ters belge oluşturur; ikinci iptal veya aşırı iade engellenir. İade edilen boya otomatik satılabilir sayılmaz: restock_quantity ayrı alandır, iş kuralı onay bekler. Hasarlı iade para iadesi doğurabilir ama satılabilir stoğu artırmamalıdır.
 
-Vergi dahil/hariç, satır/fiş indirimi, yuvarlama ve kısmi iade kuruş dağıtımı henüz seçilmedi. Vergi alanları bu nedenle taslaktır; satış migration'ı öncesi örnek hesaplarla onay gerekir. İade tutarı güncel ürün fiyatından değil kaynak satırın dağıtılmış tutarından hesaplanır; toplam iadeler ilk tahsil edilebilir tutarı aşamaz. Son kısmi iade varsa kalan kuruş farkını kontrollü kapatmalıdır.
+Ürün fiyatında KDV dahil/hariç seçimi K18 ile onaylandı ve F2’de uygulandı. Satır/fiş indirimi, satış yuvarlaması ve kısmi iade kuruş dağıtımı henüz seçilmedi. Vergi alanları bu nedenle taslaktır; satış migration'ı öncesi örnek hesaplarla onay gerekir. İade tutarı güncel ürün fiyatından değil kaynak satırın dağıtılmış tutarından hesaplanır; toplam iadeler ilk tahsil edilebilir tutarı aşamaz. Son kısmi iade varsa kalan kuruş farkını kontrollü kapatmalıdır.
 
 ## Transaction ve eşzamanlılık algoritması
 

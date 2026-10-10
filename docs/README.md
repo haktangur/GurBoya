@@ -2,7 +2,7 @@
 
 Türkçe boya ve hırdavat dükkânı yönetim uygulaması. Tek bilgisayarda tarayıcıdan açılır; uygulama ve PostgreSQL Docker Compose ile yerel çalışır. Bulut gerekmez. Kurulum tamamlandıktan sonra günlük işlemler internet gerektirmez.
 
-## Mevcut durum — 9 Ekim 2026
+## Mevcut durum — 10 Ekim 2026
 
 F2 ürün/stok modülü ve şifreli giriş hazırlandı: elle boya marka/litre/renk/fiyat, kutu/adet/gram, stok girişi/düzeltme/sayım ve fiyat geçmişi. KDV ekle/dahil seçimiyle net, KDV ve toplam ayrı gösterilir; başlangıç oranı %15, karttan değiştirilebilir. Satış fişi henüz yok. Güncel kabul sonuçları [ilerleme belgesinde](progress.md).
 
@@ -16,9 +16,11 @@ F2 ürün/stok modülü ve şifreli giriş hazırlandı: elle boya marka/litre/r
 6. [Faz planı](project_plan.md)
 7. [Geliştirme kuralları](development_rules.md)
 8. [İlerleme](progress.md)
-9. [Codex'e verilecek ilk geliştirme promptu](codex_start_prompt.md)
+9. [Yeni sohbete devam promptu](codex_start_prompt.md)
 
 [ChatGPT çalışma kuralları](chatgpt.md) aynı karar ve standartlara yönlendirir. Tüm Markdown dosyaları kullanıcının istediği gibi docs/ altında tutulur. Kök AGENTS.md olmadığı için başlangıç promptu docs/AGENTS.md dosyasının açıkça okunmasını ister; kökten başlayan oturumda otomatik yüklenmesine güvenilmez.
+
+Yeni sohbet için [devir notunu](next_session.md) oku ve [devam promptunu](codex_start_prompt.md) kullan. Güncel geliştirme dalı `feat/f2-inventory`; main henüz bu geliştirmeleri içermez.
 
 ## Dosya ve Git düzeni
 
