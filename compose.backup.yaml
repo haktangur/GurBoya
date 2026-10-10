@@ -1,0 +1,25 @@
+services:
+  backup:
+    image: postgres:18.6-bookworm@sha256:afc7e2d441324c0388fa80c3d24f733b4194a4eb7f47dd8ee2b08eb1a24a647c
+    restart: unless-stopped
+    entrypoint: ["sh", "/backup-scripts/run.sh"]
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB:-gurboya}
+      PGUSER: ${POSTGRES_USER:-gurboya_admin}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD tanimlayin}
+      PGCONNECT_TIMEOUT: "10"
+    volumes:
+      - ./scripts/backup:/backup-scripts:ro
+      - ./backups/automatic:/backups
+    networks:
+      - database
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "sh", "/backup-scripts/health.sh"]
+      interval: 60s
+      timeout: 5s
+      retries: 2
+      start_period: 120s

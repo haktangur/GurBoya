@@ -1,0 +1,33 @@
+@page
+@model GurBoya.Web.Pages.Reports.IndexModel
+@{ ViewData["Title"] = "Raporlar"; }
+<h1>Raporlar</h1>
+<nav><a asp-page="Stock">Mevcut ve biten stok</a></nav>
+<form method="get" class="panel">
+    <div asp-validation-summary="All" class="error" role="alert"></div>
+    <div class="form-grid"><label>Başlangıç tarihi<input asp-for="From" type="date" /></label><label>Bitiş tarihi<input asp-for="To" type="date" /></label></div>
+    <button>Raporu göster</button>
+</form>
+<p>Türkiye saatiyle, iki tarih dahil. Satışlar satış tarihinde, iadeler ve iptaller iade tarihinde hesaba katılır. Tutarlar indirim sonrası, KDV dahildir.</p>
+@if (Model.Loaded)
+{
+    <h2>Satış ve iade tutarları</h2>
+    <div class="table-wrap"><table><thead><tr><th>Yöntem</th><th>Satış</th><th>İade / iptal</th><th>Satış − iade</th></tr></thead><tbody>
+    @foreach (var row in Model.Payments)
+    { <tr data-payment="@row.Method"><th>@(row.Method == "CASH" ? "Nakit" : "Kart")</th><td>@row.Sales.ToString("N2") TL</td><td>@row.Returns.ToString("N2") TL</td><td>@((row.Sales - row.Returns).ToString("N2")) TL</td></tr> }
+    <tr id="report-total"><th>Toplam</th><td>@Model.Payments.Sum(x => x.Sales).ToString("N2") TL</td><td>@Model.Payments.Sum(x => x.Returns).ToString("N2") TL</td><td>@Model.Payments.Sum(x => x.Sales - x.Returns).ToString("N2") TL</td></tr>
+    </tbody></table></div>
+    <p>Bu fark kasa bakiyesi veya kâr değildir. İade yöntemi satış yönteminden farklı olabilir; eski satışların iadeleri nedeniyle fark eksi olabilir.</p>
+    <h2>Ürün bazında miktarlar</h2>
+    <p>Ürün adı güncel karttan alınır; pasif ürünler de dahildir. Farklı birimler birlikte toplanmaz.</p>
+    <div class="table-wrap"><table><thead><tr><th>Ürün</th><th>Birim</th><th>Satılan</th><th>İade / iptal</th><th>Fark</th></tr></thead><tbody>
+    @foreach (var row in Model.Products)
+    { <tr data-product="@row.Id"><td><a asp-page="/Products/Details" asp-route-id="@row.Id">#@row.Id · @row.Name</a></td><td>@GurBoya.Web.Pages.Reports.IndexModel.UnitName(row.Unit)</td><td>@row.Sold</td><td>@row.Returned</td><td>@(row.Sold - row.Returned)</td></tr> }
+    </tbody></table></div>
+    @if (Model.Products.Count == 0) { <p>Bu tarih aralığında satış veya iade yok.</p> }
+    <nav class="pager">
+    @if (Model.ListPage > 1) { <a asp-route-From="@Model.From?.ToString("yyyy-MM-dd")" asp-route-To="@Model.To?.ToString("yyyy-MM-dd")" asp-route-ListPage="@(Model.ListPage - 1)">Önceki</a> }
+    <span>Sayfa @Model.ListPage</span>
+    @if (Model.HasNext) { <a asp-route-From="@Model.From?.ToString("yyyy-MM-dd")" asp-route-To="@Model.To?.ToString("yyyy-MM-dd")" asp-route-ListPage="@(Model.ListPage + 1)">Sonraki</a> }
+    </nav>
+}

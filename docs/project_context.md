@@ -33,3 +33,9 @@ F3 yerel yükseltmesi 10 Ekim'de güncel yedek ve ayrı DB restore sonrası uygu
 F3 kod/test/tasarım commit’i `7fe048a822de098f0d8703f8f299fb71ee9eb383`; bu devir/ilerleme belgeleri ayrı commit ile aynı çalışma dalına eklenir. Uzak dal kimliğini her yeni oturumda yeniden doğrula.
 
 Son sohbet kapanışı: F3 ilk devir commit’i `8d82e20fcfa7fa052ddcc023fae571ab5961f39e` GitHub çalışma dalıyla yeniden eşleşti. Bu belge güncellemesi onun üzerine kaydedilir. F4 ilk sürüm için kalan tek zorunlu fazdır; F5 isteğe bağlıdır. Kullanıcı uygulamayı kontrol etmek istedi; henüz sonuç/görsel kabul bildirmedi. Yeni sohbet önce varsa bu geri bildirimi, ardından F4 açık kararlarını almalı.
+
+## F4 ilerlemesi — 10 Ekim 2026
+
+K24–K26 ile Excel/yazdırma kapsam dışında; Windows kurulumu erişim gelene kadar ertelendi. Yerel saatlik yedek, 30 gün saklama seçildi. Raporlar /Reports ve /Reports/Stock altında; tarih sınırları Europe/Istanbul, iade kendi işlem gününde ve kendi nakit/kart yöntemiyle sayılır. Şema değişmedi. Yedek servisi compose.backup.yaml ile isteğe bağlı etkinleştirilir; Mac normal kurulumunda saatlik servis etkinleştirilmedi, izole testte doğrulandı. İşletim ve kurtarma planı [F4 rehberinde](f4_operations.md).
+
+F4 tamamlanmadı: Windows kurulumu/donanım, OS açılışı, gerçek internet kesintisi ve görsel kullanıcı kabulü bekliyor. F3 ekranları kullanıcı tarafından henüz kontrol edilmedi. F5 başlatılmadı.

@@ -1,0 +1,13 @@
+@page
+@model GurBoya.Web.Pages.Reports.StockModel
+@{ ViewData["Title"] = "Stok raporu"; }
+<h1>Mevcut ve biten stok</h1>
+<a asp-page="Index">Satış raporu</a>
+<p>Rapor açıldığı andaki stoktur; geçmiş tarihli stok veya maliyet değeri değildir.</p>
+<form method="get" class="panel"><label class="check"><input asp-for="OnlyEmpty" />Yalnız biten stok</label><label class="check"><input asp-for="ShowInactive" />Pasif ürünleri de göster</label><button>Raporu göster</button></form>
+<div class="table-wrap"><table><thead><tr><th>Ürün</th><th>Marka / renk</th><th>Ambalaj</th><th>Mevcut stok</th><th>Durum</th></tr></thead><tbody>
+@foreach (var p in Model.Products)
+{ <tr data-stock="@p.Id"><td><a asp-page="/Products/Details" asp-route-id="@p.Id">#@p.Id · @p.Name</a></td><td>@p.Brand / @p.Color</td><td>@(p.PackageLiters?.ToString("0.###")) @(p.PackageLiters.HasValue ? "L" : "—")</td><td>@p.Quantity @GurBoya.Web.Pages.Reports.IndexModel.UnitName(p.Unit) @if (p.Quantity == 0) { <span class="out">Stokta yok</span> }</td><td>@(p.IsActive ? "Aktif" : "Pasif")</td></tr> }
+</tbody></table></div>
+@if (Model.Products.Count == 0) { <p>Bu filtreye uygun ürün yok.</p> }
+<nav class="pager">@if (Model.ListPage > 1) { <a asp-route-OnlyEmpty="@Model.OnlyEmpty" asp-route-ShowInactive="@Model.ShowInactive" asp-route-ListPage="@(Model.ListPage - 1)">Önceki</a> }<span>Sayfa @Model.ListPage</span>@if (Model.HasNext) { <a asp-route-OnlyEmpty="@Model.OnlyEmpty" asp-route-ShowInactive="@Model.ShowInactive" asp-route-ListPage="@(Model.ListPage + 1)">Sonraki</a> }</nav>

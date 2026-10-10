@@ -61,3 +61,10 @@ F2 teknik ayrıntıları: marka/renk/kategori ürün üzerinde serbest metindir,
 Takip yanıtları: indirim her iki düzeyde; renklendirme ücreti KDV dahil; sağlam iade stoğa döner, hasarlı iade para iadesi oluşturur ama satılabilir stoğu artırmaz. Ödeme sonrası tamamlama ve müşteri lehine kuruş kuralları onaylandı.
 
 F3 uygulama ayrıntıları: satır indirimi boya/ürün ve varsa renklendirme ücreti toplamına, fiş indirimi satır indirimlerinden sonra oransal uygulanır. Fiş toplamı yalnız kuruş altı kadar aşağı yuvarlanır; kuruşlar en büyük kalan yöntemiyle satırlara dağıtılır. Böylece her satırda ayrı ayrı aşağı yuvarlamanın biriken kaybı önlenir. Net iki basamakta en yakına, KDV toplam−net olarak hesaplanır. İadede toplam iade miktarının özgün satır tutarındaki payı yukarı yuvarlanır; önceki iadeler düşülür, net/KDV kalan bileşenleri aşmaz. Renklendirme tutarı sıfır olsa da renklendirildi işareti iade ve iptali engeller. İptal kalan satırların tamamını sağlam olarak stoğa döndüren değişmez ters belgedir; renklendirilmiş satır varsa bütün iptal reddedilir. Ücret kartın fiyatını kalıcı değiştirmez. Cari, veresiye, parçalı tahsilat ve ödeme cihazı entegrasyonu eklenmez.
+
+## F4 kullanıcı kararları — 10 Ekim 2026
+
+- K24: Raporlarda Excel aktarımı ve yazdırma istenmiyor. Önerilen mevcut/biten stok, tarih aralıklı satış/iade/fark, nakit/kart ve ürün miktarları temel kapsam olarak uygulandı; kapsamın görsel kabulü bekliyor.
+- K25: Hedef Windows bilgisayarına şu an erişim yok; kurulum kullanıcı isteğiyle ertelendi. Sürüm/donanım henüz bilinmiyor.
+- K26: Yedekler hedef bilgisayarda yerel tutulacak. Kullanıcı saatlik yedek, yaklaşık bir saatlik işlem kaybı hedefi ve 30 gün saklamayı seçti. Aynı disk arızası yerel yedekleri de kaybettirebilir; harici kopya seçilmedi. Hedef, servis/DB açık ve son yedek başarılıyken geçerlidir; kesin kayıp garantisi değildir.
+- F3 ekranları kullanıcı tarafından henüz kontrol edilmedi. Görsel kabul ve F4 pilot kapanışı bekliyor.

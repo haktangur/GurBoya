@@ -208,3 +208,9 @@ Satışlar → Yeni satış ekranında ürün/marka/renk/barkod arayıp sepete e
 Yeni migration: `20261010175529_SalesAndReturns`. Önceki üç migration değişmedi. Mevcut kurulumda yeniden ilk kurulum/admin çalıştırma; her şema yükseltmesinden önce web'i durdur, benzersiz güncel yedek al ve ayrı DB'ye dönüşünü doğrula. Ardından incelenmiş migrate ve web başlatma adımlarını uygula. Satışlar oluştuğunda migration geri alma işlemi veri kaybı doğurabilir; olağan düzeltmeler yeni migration ile yapılır.
 
 `scripts/test-app.sh`, F1-B/F2 testlerine `scripts/test-sales.py` senaryolarını ekler. Satış/iade rollback hata enjeksiyonu yalnız izole `gurboya-f1b-*` projesinde yapılır. Görsel tarayıcı ve Windows pilotu ayrı kabul işleridir.
+
+## F4 raporları ve yerel yedek
+
+Giriş sonrası **Raporlar** menüsü: mevcut/biten stok ve tarih aralıklı satış/iade raporları. Satış/iade farkı, nakit/kart ayrımı ve ürün miktarları gösterilir; Excel/yazdırma yoktur. Türkiye saatiyle iki tarih dahildir; iadeler kendi işlem tarihinde sayılır.
+
+Saatlik yerel yedek ve 30 gün saklama için ayrı Compose dosyası hazırlandı. Windows kurulumu kullanıcı isteğiyle ertelendi. Etkinleştirme, kontrol, kurtarma ve bekleyen kabul adımları [F4 işletim rehberindedir](f4_operations.md).

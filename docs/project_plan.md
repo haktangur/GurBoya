@@ -45,3 +45,7 @@ Boya: elle marka/litre/renk/fiyat. Diğer ürünler: kutu/adet/gram; tüm miktar
 ## F3 onaylı kapsam — 10 Ekim 2026
 
 K19–K23 ve takip yanıtlarıyla satış, satır/fiş TL-yüzde indirim, müşteri lehine fiş kuruşu, elle KDV dahil renklendirme ücreti ve renk kodu, nakit/kart tamamlama, iade/iptal uygulandı. Renklendirilmiş boya iade/iptal edilemez. Sağlam iade stoğa döner, hasarlı iade para iadesiyle sınırlı kalır. Cari, parçalı ödeme ve POS entegrasyonu yoktur. Gerçek PostgreSQL/HTTP testleri tekrar, yarış, rollback, geçmiş fiyat, iade sınırı ve yedekten dönüşü kapsar. Sonuçlar progress.md'de; sıradaki iş F4 pilot hazırlığıdır.
+
+## F4 uygulama durumu — 10 Ekim 2026
+
+Temel stok/satış raporları ve saatlik yerel/30 günlük yedek servisi geliştirildi. Excel/yazdırma yok. Windows kurulumu kullanıcı isteğiyle ertelendi; donanım bilgisi ve hedef bilgisayara erişim bekleniyor. Mac otomatik testlerinin geçmesi F4 kapanışı sayılmaz. F3/F4 görsel kabulü, Windows/AMD64 çalışma, OS açılışı ve gerçek internet kesintisi henüz bekliyor. Bkz. [işletim ve kabul rehberi](f4_operations.md).

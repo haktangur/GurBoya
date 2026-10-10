@@ -168,7 +168,8 @@ assert '95,8333 TL' in stock(paint)[1]
 assert 'KDV dahil düzeltme' in stock(paint)[1]
 
 import runpy
-runpy.run_path(str(Path(__file__).with_name('test-sales.py')), init_globals=globals())
+sales_globals = runpy.run_path(str(Path(__file__).with_name('test-sales.py')), init_globals=globals())
+runpy.run_path(str(Path(__file__).with_name('test-reports.py')), init_globals=sales_globals)
 
 new_password = 'Next9' + env['ADMIN_PASSWORD']
 assert client.post('/Account/Password', {'CurrentPassword':env['ADMIN_PASSWORD'], 'NewPassword':new_password, 'ConfirmPassword':'different'})[0] == 400

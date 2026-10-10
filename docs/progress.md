@@ -186,3 +186,26 @@ F3 kod/test/tasarım commit'i `7fe048a822de098f0d8703f8f299fb71ee9eb383`. Bu ile
 Kullanıcı faz durumunu ve yeni sohbete geçişi istedi. F3 teknik olarak tamamlandı; F4 zorunlu pilot/rapor/yedek aşaması, F5 isteğe bağlı genişleme olarak açıklığa kavuşturuldu. Kullanıcı ekran kontrolü sonucunu henüz bildirmedi; görsel kabul bekliyor. Faz planı, bağlam, devir notu ve başlangıç promptu buna göre güncellendi. Şifre ortak belgelere alınmadı.
 
 Bu kapanış yalnız Markdown değişikliğidir; uygulama/veritabanı/.env/hesap/volume değiştirilmedi. Tam test paketi tekrar çalıştırılmadı; yukarıdaki F3 test sonuçları geçerlidir. Belge bağlantıları ve diff kontrolü yapıldı. Son belge commit'i aynı çalışma dalına normal push edilir ve uzak kimlik teslim yanıtında doğrulanır. Yeni sohbet en güncel dal ucundan devam etmeli, bu metindeki eski commit'lere reset yapmamalıdır.
+
+## F4 rapor/yedek geliştirmesi — 10 Ekim 2026
+
+Başlangıçta çalışma ağacı temizdi; feat/f2-inventory yerel ve GitHub kimliği `6d0105fbfa70a5ed8b139a3e6a92ad96c5b65ceb` eşleşti. DB healthy, web ready. Kullanıcı F3 ekranlarını henüz kontrol etmediğini bildirdi. K24–K26: Excel/yazdırma yok; Windows erişimi yok, kurulum ertelendi; hedef bilgisayarda saatlik yerel yedek, 30 gün saklama ve yaklaşık bir saatlik veri kaybı hedefi seçildi.
+
+Raporlar: tarih aralığı/Türkiye günü sınırı, KDV dahil indirim sonrası satış/iade/fark, ayrı nakit/kart yöntemleri, ürün bazında miktarlar; güncel/biten stok ve pasif filtreleri. Salt okunur, aynı snapshot içinde özet/miktar, 50 kayıt sayfalama; yeni bağımlılık, şema veya migration yok. Satış fiyatları yeniden hesaplanmaz.
+
+Yedek: ayrı opsiyonel Compose servisi, sabit PostgreSQL imajı, saatlik custom dump + SHA-256, açılışta gecikeni alma, başarısızlıkta tekrar, 30 günlük yalnız kendi arşivlerinde temizlik, son başarı yaşına göre sağlık kontrolü. Web'e yönetim parolası/Docker soketi eklenmedi. Saatlik servis Mac normal kurulumunda etkinleştirilmedi; Windows dağıtımıyla etkinleştirilecek. Kurtarma/işletim adımları f4_operations.md içinde.
+
+### Doğrulama
+
+- Kilitli restore, format + verify-no-changes, Release build: 0 hata/uyarı; EF pending-model: değişiklik yok. Günlük `.tmp/f4-quality.log`.
+- `bash scripts/test-app.sh`: çıkış 0; F1-B/F2/F3 regresyonları ve F4 rapor testleri geçti. Proje `gurboya-f1b-0924aa05cd4d`, kanıt `.tmp/f1-b.KRZveM`, günlük `.tmp/f4-app.log`. Yetkisiz erişim, geçersiz/boş aralık, İstanbul gece yarısı iki sınırı, iadenin kendi günü/yöntemi, stok/pasif filtreleri doğrulandı. Tarih fixture'ları yalnız izole test DB'sinde oluşturuldu.
+- `bash scripts/test-backup.sh`: nihai çıkış 0; proje `gurboya-f4-backup-cd5a51cb2649`, kanıt `.tmp/f4-backup.rg9nI1`, günlük `.tmp/f4-backup-final.log`. Checksum, ayrı DB'ye restore (2 satır, 10.33 toplam, Türkçe içerik), başarısızlıkta eski yedek/başarı zamanını koruma, gecikmiş açılış, süre dolan arşiv temizliği, manuel yedeği koruma ve yeniden başlatmada gereksiz yedek almama geçti. Saatin geçişi eski başarı zamanı fixture'ıyla sınandı; bir saat gerçek zaman beklenmedi.
+- İlk yedek testi metin `min` sıralama beklentisi nedeniyle başarısız oldu; içerik karşılaştırması kimlik sıralı tüm metinlere çevrildi, paket yeniden geçti. Başarısız deneme başarı sayılmadı.
+- Test konteyner/ağları kaldırıldı, volume'ları ve yerel kanıtları korundu. Normal işletme DB'sine sentetik kayıt yazılmadı.
+- Mevcut Mac web konteyneri test edilen imajla yenilendi; readiness `ready`. DB/hesap/.env/volume ve uygulanmış migration'lara müdahale edilmedi.
+
+### Açık kabul ve devir
+
+F4 **tamamlanmadı**. Windows kurulumu kullanıcı isteğiyle ertelendi; Windows/AMD64, OS açılışı, gerçek internet kesintisi, Windows geri yükleme ve kullanıcı görsel kabulü yapılmadı. Bu oturumda bilgisayar envanterinde bağlı browser sağlayıcısı yoktu; native tarayıcıyla kontrol yapılmadı. Mac HTTP testleri görsel kabul sayılmaz. F5 başlatılmadı.
+
+Belgeler ve devam promptu bu duruma güncellendi. Sıradaki adım kullanıcı F3/F4 ekran geri bildirimi, ardından hedef bilgisayara erişim olduğunda Windows gereksinimleri ve gerçek pilot kontrolleri. Değişiklikler mevcut çalışma dalına normal push ile gönderilir; kesin uzak kimlik teslimde bildirilir.

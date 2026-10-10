@@ -134,3 +134,7 @@ Satış/iade tutarları numeric(18,2), ürün fiyat snapshot'ı numeric(18,4); o
 Satış/stok UUID replay ve ürün sürümü kontrolüyle korunur. İade başlığı eklenirken kaynak satış DB satırı kilitlenir. Deferred constraint trigger'ları satır/başlık tutarlarını, operation sonucunu, aynı satışa ait iade satırını, birikimli miktar/tutar sınırını, renklendirilmiş iade yasağını ve stok kaynağını transaction sonunda doğrular. Geçmiş UPDATE/DELETE engellenir; operation kaydı bulunan tamamlanmış belgeye yeni satır eklenemez. İptal kalan satırların tümüne ters belge oluşturur; kayıtları silmez.
 
 Yeni migration `20261010175529_SalesAndReturns`; uygulanmış üç eski migration aynen korunur. Bu model kalıcı DRAFT, cari, tahsilat mahsup tablosu veya pigment tablosu içermez. Bu bölüm ve kod, yukarıdaki uygulanmamış F3 öneri tablosundan önceliklidir.
+
+## F4 raporları
+
+F4 şema değişikliği veya migration eklemez. Satış/iade raporu değişmez belgelerdeki tutarları okur; güncel fiyatla tekrar hesaplamaz. Her belgenin kendi OccurredAt zamanı Europe/Istanbul tarih aralığına göre filtrelenir. Güncel stok ürün bakiyesinden okunur. Geçmiş migration dosyaları korunur.
