@@ -12,6 +12,15 @@ Durum: F1-A Mac ARM64 kabul testleri tamamlandı; Windows/AMD64 doğrulaması be
 | F4 | İşletme pilotu ve yedek | F3; cari/tahsilat ihtiyacı kararı | Temel stok/satış raporu, Windows dağıtımı, kullanıcı yetkileri, günlük yedek, kurtarma; internet kapalı açılış ve gerçek kullanıcı kabulü. |
 | F5 | İhtiyaca göre genişleme | Pilot geri bildirimi | Cari, tedarikçi, alış belgeleri, Excel aktarımı, etiket/teklif; her modül için ayrı onay, tasarım ve test. |
 
+## F3 sonrası kalan fazlar
+
+F3 geliştirme ve Mac ARM64 otomatik kabul testleri tamamlandı. İlk sürümün işletmede kabulü için **bir zorunlu faz (F4)** kaldı. **F5 isteğe bağlı genişleme fazıdır**; kendiliğinden başlatılmaz.
+
+- F4: rapor kapsamının netleştirilmesi, temel stok/satış raporları, Windows dağıtımı, yedek/kurtarma, çevrimdışı ve OS açılışı kontrolleri, görsel kullanıcı kabulü.
+- F5: pilot geri bildirimine göre ayrıca onaylanan ek modüller.
+
+Kullanıcı uygulamayı kontrol etmek için giriş bilgisini istedi; kontrolün sonucu veya görsel kabulü henüz bildirilmedi. F3 teknik tamamlanması, kullanıcının ekranları onayladığı veya Windows canlı kullanımının kabul edildiği anlamına gelmez.
+
 ## MVP önerisi
 
 Elle ürün/fiyat girişi, kutulu boya ve adet/gram stokları, satış/renk kodu, iade/düzeltme, temel listeler, erişim kontrolü ve yedekten kurtarma. Pigment/reçete yoktur. Cari/veresiye dükkân için zorunluysa F5'e ertelenemez; pilot öncesi MVP'ye alınır. Tahsilat kapsamı netleşmeden satış toplamı kasa bakiyesi olarak gösterilmez. Maliyet yöntemi netleşmeden brüt kâr raporu üretilmez.

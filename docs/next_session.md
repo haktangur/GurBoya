@@ -4,7 +4,7 @@ Devir tarihi: 10 Ekim 2026. Önce [AGENTS.md](AGENTS.md), ardından [devam promp
 
 ## Tamamlanan kapsam ve Git
 
-F1-A/F1-B/F2/F3 Mac ARM64 üzerinde tamamlandı. Çalışma dalı `feat/f2-inventory`, origin `https://github.com/haktangur/GurBoya.git`. F3, F2 devir commit'i `d5ad5b57e714f92f8cf9e3b3c974c18273ff58b6` üzerinden geliştirildi. F3 kod/test/tasarım commit'i `7fe048a822de098f0d8703f8f299fb71ee9eb383`; devir belgeleri bunun üzerindedir. En son F3 ve belge commit'lerini `git log` ve `git ls-remote` ile kontrol et; sabit eski kimliğe reset yapma. main geliştirmeleri içermez. Çalışma dalına normal push yetkilidir; force push yoktur.
+F1-A/F1-B/F2/F3 Mac ARM64 üzerinde tamamlandı. Çalışma dalı `feat/f2-inventory`, origin `https://github.com/haktangur/GurBoya.git`. F3, F2 devir commit'i `d5ad5b57e714f92f8cf9e3b3c974c18273ff58b6` üzerinden geliştirildi. F3 kod/test/tasarım commit'i `7fe048a822de098f0d8703f8f299fb71ee9eb383`; ilk devir commit'i `8d82e20fcfa7fa052ddcc023fae571ab5961f39e` 10 Ekim’de GitHub çalışma dalı ile eşleşerek doğrulandı. Bu son kapanış belgesi onun üzerine eklenir. En son F3 ve belge commit'lerini `git log` ve `git ls-remote` ile kontrol et; sabit eski kimliğe reset yapma. main geliştirmeleri içermez. Çalışma dalına normal push yetkilidir; force push yoktur.
 
 - Ürün/stok: elle boya marka/litre/renk/fiyat, diğerlerinde kutu/adet/gram; tam sayı, eksi stok engeli; fiyat/stok geçmişi ve sayım.
 - Tek şifreli yonetici hesabı; şifre değişimi, CSRF ve kalıcı oturum anahtarları.
@@ -45,5 +45,7 @@ Satış ve iade belge/satır/stok/UUID kayıtları tek transaction'dır. UUID/ha
 Windows/AMD64 çalıştırma, OS açılışı, tam internet kesintisi ve görsel tarayıcı kontrolü yapılmadı. Bu oturumdaki bilgisayar envanterinde bağlı browser sağlayıcısı yoktu. HTTP testlerini görsel test sayma; Mac kabulünü Windows canlı kabulü sayma.
 
 ## Sıradaki F4
+
+İlk sürüm için bir zorunlu faz (F4) kaldı; F5 yalnız ayrıca istenirse yapılacak genişlemelerdir. Kullanıcı giriş bilgisini aldı fakat ekran kontrolü sonucunu henüz bildirmedi. Yeni sohbette varsa bu geri bildirimi al; görsel kabulü yapılmış sayma. Şifreyi ortak belgelere veya başlangıç promptuna ekleme.
 
 Kullanıcıyla temel stok/satış raporlarını, Windows sürümü/donanımı ve yedek saklama/harici ortam/kabul edilen veri kaybını netleştir. Sonra Windows pilotu, çevrimdışı açılış, kullanıcı kabulü ve yedek/kurtarma planını uygula. Onaylanmış F2/F3 iş kurallarını yeniden sorma, tamamlanmış modülleri baştan yazma. Cari/POS/pigment modülü kendiliğinden ekleme.
