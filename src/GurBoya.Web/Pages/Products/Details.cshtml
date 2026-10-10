@@ -17,7 +17,7 @@
     <p>Girişte pozitif tam sayı girin. Düzeltmede eksiltmek için eksi kullanın (ör. -1). Sayımda rafta saydığınız toplam miktarı girin (sıfır olabilir). Bu işlem satış fişi oluşturmaz.</p><button>Stok işlemini kaydet</button>
 </form>
 <h2>Stok geçmişi</h2><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>İşlem</th><th>Miktar</th><th>Alış (KDV hariç / birim)</th><th>Açıklama</th></tr></thead><tbody>
-@foreach (var movement in Model.Movements) { <tr><td>@GurBoya.Web.Pages.Products.DetailsModel.LocalTime(movement.OccurredAt)</td><td>@(movement.Kind == "RECEIPT" ? "Stok girişi" : movement.Kind == "COUNT" ? "Sayım" : "Düzeltme")</td><td>@movement.Delta</td><td>@Pricing.Money(movement.PurchaseNet) TL</td><td>@movement.Reason</td></tr> }
+@foreach (var movement in Model.Movements) { <tr><td>@GurBoya.Web.Pages.Products.DetailsModel.LocalTime(movement.OccurredAt)</td><td>@(movement.Kind == "RECEIPT" ? "Stok girişi" : movement.Kind == "COUNT" ? "Sayım" : movement.Kind == "SALE" ? "Satış" : movement.Kind == "RETURN" ? "İade" : "Düzeltme")</td><td>@movement.Delta</td><td>@Pricing.Money(movement.PurchaseNet) TL</td><td>@movement.Reason</td></tr> }
 </tbody></table></div>
 <h2>Fiyat geçmişi</h2><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Girilen alış / satış</th><th>KDV seçimi / oran</th><th>Açıklama</th></tr></thead><tbody>
 @foreach (var change in Model.Prices) { <tr><td>@GurBoya.Web.Pages.Products.DetailsModel.LocalTime(change.OccurredAt)</td><td>@Pricing.Money(change.PurchasePrice) / @Pricing.Money(change.SalePrice) TL</td><td>@(change.VatIncluded ? "KDV dahil" : "KDV ekle") / %@change.VatRate.ToString("0.##")</td><td>@change.Reason</td></tr> }

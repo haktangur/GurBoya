@@ -4,7 +4,7 @@ Türkçe boya ve hırdavat dükkânı yönetim uygulaması. Tek bilgisayarda tar
 
 ## Mevcut durum — 10 Ekim 2026
 
-F2 ürün/stok modülü ve şifreli giriş hazırlandı: elle boya marka/litre/renk/fiyat, kutu/adet/gram, stok girişi/düzeltme/sayım ve fiyat geçmişi. KDV ekle/dahil seçimiyle net, KDV ve toplam ayrı gösterilir; başlangıç oranı %15, karttan değiştirilebilir. Satış fişi henüz yok. Güncel kabul sonuçları [ilerleme belgesinde](progress.md).
+F2 ürün/stok modülü ve şifreli giriş hazırlandı: elle boya marka/litre/renk/fiyat, kutu/adet/gram, stok girişi/düzeltme/sayım ve fiyat geçmişi. KDV ekle/dahil seçimiyle net, KDV ve toplam ayrı gösterilir; başlangıç oranı %15, karttan değiştirilebilir. F3 satış/iade hazır: satır ve fiş indirimi, KDV dahil elle renklendirme ücreti, nakit/kart tamamlama, sağlam/hasarlı iade ve iptal. Güncel kabul sonuçları [ilerleme belgesinde](progress.md).
 
 ## Okuma sırası
 
@@ -191,3 +191,20 @@ Mevcut kurulumda önce web'i durdurup benzersiz isimli custom pg_dump yedeği al
 Felaket kurtarmada dump şema/verileri geri getirir, sunucu rollerini ve Data Protection volume'unu kapsamaz. --no-owner/--no-privileges ile yüklenen prova DB'si uygulama çalıştırmaya hazır yetki düzeni sayılmaz. Canlı kurtarmada rol sahiplikleri, app/infrastructure yetkileri ve geçmiş tablolarının UPDATE/DELETE yasakları ayrıca doğrulanmalıdır. Anahtar kaybı veritabanını silmez fakat eski oturumları geçersiz kılar.
 
 scripts/test-app.sh artık F1-B altyapı kontrollerine F2 HTTP testlerini de ekler; Python 3 standart kütüphanesi gerekir. Giriş/CSRF/kilitleme, KDV/ondalık, ürün/stock replay, eşzamanlı son stok, sayım, fiyat geçmişi, pasif ürün, rollback, mutabakat, F2 dump/restore ve yeniden oluşturma sonrası oturum sınanır. Synthetic kullanıcı/parola/çerezler yalnızca .tmp/ altında tutulur. Test her seferinde ayrı DB ve anahtar volume'ları bırakır; otomatik volume silmez.
+
+
+## F3 satış ve iade kullanımı
+
+Satışlar → Yeni satış ekranında ürün/marka/renk/barkod arayıp sepete ekle. Aynı ürün ayrı renk veya indirimle birden fazla satırda bulunabilir; stok kontrolü ürünün tüm satırlarını toplar. Miktar kutu/adet/gram tam sayıdır. Sepet henüz tamamlanmamış işlemdir, DB'ye kaydedilmez; sayfa kapanırsa kaybolur ve stok etkilenmez.
+
+- Satır ve fiş için TL veya yüzde indirim seç. Önce satır indirimi, sonra fiş indirimi uygulanır; indirim bedeli aşamaz. Fiş indirimi satırlara oransal dağıtılır.
+- Boya satırında **Renklendirme ücreti ekle** düğmesine bas; satırın tamamı için KDV dahil ek tutar ve renk kodunu gir. Tekrar KDV eklenmez; mevcut boya oranıyla net/KDV ayrılır. Ücret boya fiyatına kalıcı yazılmaz. Renklendirildi işareti, ücret sıfır olsa bile iade ve iptali engeller.
+- **Toplamı hesapla** ile net/KDV/toplamı gör. Fiş toplamı müşteri lehine yalnız kuruş altı kadar aşağı yuvarlanır. Satır kuruşları fiş toplamını koruyacak şekilde dağıtılır; bütün satırları tek tek aşağı yuvarlamanın birikmesi önlenir.
+- Ödemeyi uygulama dışında aldıktan sonra nakit veya kart seçip **Ödeme alındı — satışı tamamla** düğmesine bas. Uygulama POS işlemi yapmaz; cari/veresiye, parçalı ödeme ve kasa bakiyesi tutmaz. Fiyat/stok değişmişse ilgili ürünü sepetten çıkarıp tekrar ekle.
+- Satış detayında iade miktarını ve satılabilir stoğa dönen miktarı ayrı gir. Sağlam iade stoğa döner; hasarlı iade için stoğa dönüş 0'dır. Gerekçe ve nakit/kart para iadesi yöntemi seçilir; dışarıda yapılan para iadesi onaylanır. Pasif ürünün sağlam iadesi stoğa dönebilir ama kartı otomatik etkinleştirmez.
+- İade tutarı özgün indirimli satırdan hesaplanır. Örneğin 30,01 TL'lik üç ürün ayrı ayrı iade edilirse 10,01 + 10,00 + 10,00 TL geri ödenir. Toplam iade özgün satış bedelini aşmaz. Ürün kartının sonraki fiyat/ad/renk değişiklikleri geçmiş satışı değiştirmez.
+- **Kalan satışın tamamını iptal et ve stoğa döndür**, kalan tüm miktarı sağlam kabul ederek ters belge oluşturur. Renklendirilmiş boya varsa bu iptal kullanılamaz; diğer satırlar ayrı iade edilebilir. İptal ve iade geçmişi silmez.
+
+Yeni migration: `20261010175529_SalesAndReturns`. Önceki üç migration değişmedi. Mevcut kurulumda yeniden ilk kurulum/admin çalıştırma; her şema yükseltmesinden önce web'i durdur, benzersiz güncel yedek al ve ayrı DB'ye dönüşünü doğrula. Ardından incelenmiş migrate ve web başlatma adımlarını uygula. Satışlar oluştuğunda migration geri alma işlemi veri kaybı doğurabilir; olağan düzeltmeler yeni migration ile yapılır.
+
+`scripts/test-app.sh`, F1-B/F2 testlerine `scripts/test-sales.py` senaryolarını ekler. Satış/iade rollback hata enjeksiyonu yalnız izole `gurboya-f1b-*` projesinde yapılır. Görsel tarayıcı ve Windows pilotu ayrı kabul işleridir.

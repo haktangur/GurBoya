@@ -55,9 +55,9 @@ request / 503 'Yeniden dene'
 test "$(sql <<< "SELECT count(*) FROM information_schema.tables WHERE table_schema IN ('app','infrastructure');")" = 0
 printf 'PASS: Açılış şemayı değiştirmiyor; migration eksikliği 503 ve Türkçe ekranla gösteriliyor.\n'
 compose run --rm migrate
-test "$(sql <<< 'SELECT count(*) FROM infrastructure."__EFMigrationsHistory";')" = 3
+test "$(sql <<< 'SELECT count(*) FROM infrastructure."__EFMigrationsHistory";')" = 4
 compose run --rm migrate
-test "$(sql <<< 'SELECT count(*) FROM infrastructure."__EFMigrationsHistory";')" = 3
+test "$(sql <<< 'SELECT count(*) FROM infrastructure."__EFMigrationsHistory";')" = 4
 request /health/ready 200 'ready'
 request / 200 'Sistem haz'
 request /site.css 200 'font-family'
@@ -77,12 +77,15 @@ grep -q 'permission denied' "$test_dir/history-denied.log"
 printf 'PASS: Uygulama superuser değil; DDL, geçici tablo ve migration geçmişini değiştirme yetkisi yok.\n'
 compose run --rm admin
 compose run --rm admin
-python3 scripts/test-inventory.py "$base_url" "$env_file"
+GURBOYA_TEST_PROJECT="$project" python3 scripts/test-inventory.py "$base_url" "$env_file"
 test "$(sql <<'SQL'
 SELECT count(*) FROM app.products p WHERE p."Quantity" <> COALESCE((SELECT sum(m."Delta") FROM app.stock_movements m WHERE m."ProductId" = p."Id"), 0);
 SQL
 )" = 0
 before=$(sql <<< 'SELECT sum("Quantity") FROM app.products;')
+sales_digest_sql='SELECT jsonb_build_array((SELECT count(*) FROM app.sales), (SELECT sum("Total") FROM app.sales), (SELECT count(*) FROM app.sale_lines), (SELECT sum("Quantity") FROM app.sale_lines), (SELECT count(*) FROM app.sales_returns), (SELECT sum("Total") FROM app.sales_returns), (SELECT count(*) FROM app.return_lines), (SELECT sum("RestockQuantity") FROM app.return_lines), (SELECT count(*) FROM information_schema.triggers WHERE trigger_schema = $$app$$));'
+sales_before=$(sql <<< "$sales_digest_sql")
+
 if sql > "$test_dir/rollback.log" 2>&1 <<'SQL'
 BEGIN;
 INSERT INTO app.stock_movements ("ProductId", "OperationId", "RequestHash", "Delta", "Kind", "Reason", "PurchaseNet", "ActorId", "OccurredAt")
@@ -115,6 +118,8 @@ SELECT sum("Quantity") FROM app.products;
 SQL
 )
 test "$restored" = "$before"
+sales_restored=$(compose exec -T db sh -c 'psql -X -U "$POSTGRES_USER" -d f2_restore -At' <<< "$sales_digest_sql")
+test "$sales_restored" = "$sales_before"
 printf 'PASS: Stok mutabakatı, transaction rollback, DB korumaları ve ayrı DB restore.\n'
 compose up -d --force-recreate --pull never web
 base_url="http://$(compose port web 8080)"

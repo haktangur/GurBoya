@@ -1,6 +1,6 @@
 # GürBoya — Yerel web mimarisi
 
-Durum: Yerel web + PostgreSQL + Docker kullanıcı tarafından onaylandı. Razor Pages + EF Core + Npgsql kullanıcı tarafından onaylandı. F2 ürün/stok ve tek yönetici girişi uygulandı; satış/iade sonraki fazdır.
+Durum: Yerel web + PostgreSQL + Docker kullanıcı tarafından onaylandı. Razor Pages + EF Core + Npgsql kullanıcı tarafından onaylandı. F2 ürün/stok ve tek yönetici girişi uygulandı; F3 satış/iade de uygulandı.
 
 ## Çalışma düzeni
 
@@ -80,3 +80,12 @@ ASP.NET Identity'nin PasswordHasher/UserManager/SignInManager bileşenleri kulla
 Anahtarlar uygulama kullanıcısına ait 0700 /keys dizinindeki named volume'da kalıcıdır; konteyner yeniden oluşturulması oturumu bozmaz. Anahtar XML'leri bu yerel dağıtımda ayrıca şifrelenmez; disk/OS hesabı erişimi Windows pilotunda doğrulanacak. İlk parola yalnızca admin bakım hizmetine verilir; web DB yönetim/migration/ilk-parola sırlarını almaz. İlk kurulum dosyaları Git dışında kalır.
 
 KDV hesabı yalnızca sunucuda decimal ile yapılır; fiyat önizlemesi normal CSRF korumalı form gönderimidir, tarayıcıda ayrı float hesap uygulanmaz. CSS yereldir; üçüncü taraf CDN, script veya yazı tipi yoktur.
+
+
+## F3 satış katmanı
+
+SalesService, SalePricing ve Pages/Sales eklendi; ek bağımlılık yok. Sunucu hesaplı form sepeti kalıcı taslak değildir ve stok ayırmaz. Ödeme alındı düğmesi nakit/kart bilgisiyle değişmez satış oluşturur. KDV dahil renklendirme tutarı satır içindedir, aynı boya oranına tabidir; ürün kartını değiştirmez. Fiş fiyatı dört basamaklı ürün girdisinden yüksek hassasiyetle hesaplanır; satış/iadede net/KDV/toplam kuruşla saklanır.
+
+Satış UUID/hash kilidi, ürün kimliği sıralı satır kilitleri, sürüm/stok kontrolü, belge/satır/stok/işlem kaydı ve commit tek transaction'dadır. İade UUID/hash kilidinden sonra kaynak satış başlığını kilitler, kalanları hesaplar, sonra ürünleri kimlik sırasıyla kilitler. Aynı satışın iadeleri böylece sıraya girer. Pasif ürüne RETURN stok girişi izinlidir, ürün etkinleştirilmez. Diğer pasif ürün yazma sınırları korunur. Geçmiş belgeler değişmez; tamamlanmış belgelere ek satır da kabul edilmez.
+
+DB deferred trigger'ları belge toplamlarını, iade kaynağını/sınırını ve her satırın tek stok hareketini denetler. Kaynak satış başlığında UPDATE yetkisi satır kilidi için gerekir; gerçek UPDATE/DELETE değişmezlik trigger'ıyla reddedilir. Diğer satış/iade geçmişinde UPDATE/DELETE uygulama yetkisi kaldırılmıştır. Uygulama herhangi bir ödeme cihazına bağlanmaz; para hareketi yerine yalnız dışarıdaki ödeme/iade yöntemini kaydeder.

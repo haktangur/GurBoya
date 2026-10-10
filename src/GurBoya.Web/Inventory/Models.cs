@@ -27,6 +27,8 @@ public sealed class Product
 
 public sealed class StockMovement
 {
+    public long? SaleLineId { get; set; }
+    public long? ReturnLineId { get; set; }
     public long Id { get; set; }
     public long ProductId { get; set; }
     public Product Product { get; set; } = null!;

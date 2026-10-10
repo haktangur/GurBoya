@@ -52,6 +52,7 @@ var protection = builder.Services.AddDataProtection().SetApplicationName("GurBoy
 if (builder.Configuration["DataProtection:Path"] is { } keyPath)
     protection.PersistKeysToFileSystem(new DirectoryInfo(keyPath));
 builder.Services.AddScoped<InventoryService>();
+builder.Services.AddScoped<GurBoya.Web.Sales.SalesService>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(
     DatabaseConfiguration.ConnectionString(builder.Configuration),
     postgres => postgres.MigrationsHistoryTable("__EFMigrationsHistory", "infrastructure")));

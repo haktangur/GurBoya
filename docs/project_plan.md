@@ -1,6 +1,6 @@
 # GürBoya — Faz planı
 
-Durum: F1-A Mac ARM64 kabul testleri tamamlandı; Windows/AMD64 doğrulaması bekliyor. F1-B stack seçimi onaylandı; Razor Pages/EF Core/Npgsql iskeleti ve Mac ARM64 kabul testleri tamamlandı. Tek şifreli yönetici hesabı K17 ile onaylandı; F2 Mac ARM64 kabul testleri tamamlandı. Diğer fazların ayrıntıları açık iş kuralları ve stack onayına bağlı taslak plandır. Tarih/süre taahhüdü verilmedi.
+Durum: F1-A Mac ARM64 kabul testleri tamamlandı; Windows/AMD64 doğrulaması bekliyor. F1-B stack seçimi onaylandı; Razor Pages/EF Core/Npgsql iskeleti ve Mac ARM64 kabul testleri tamamlandı. Tek şifreli yönetici hesabı K17 ile onaylandı; F2 Mac ARM64 kabul testleri tamamlandı. F3 iş kuralları onaylandı ve satış/iade uygulandı. F4 ayrıntıları pilot kararlarına bağlıdır. Tarih/süre taahhüdü verilmedi.
 
 | Faz | Amaç ve kapsam | Bağımlılık | Teknik görev ve bitiş/test koşulu |
 |---|---|---|---|
@@ -31,3 +31,8 @@ Onaylanan Razor Pages + EF Core + Npgsql ile tek web projesi. Türkçe durum/hat
 ## F2 onaylı kapsam — 9 Ekim 2026
 
 Boya: elle marka/litre/renk/fiyat. Diğer ürünler: kutu/adet/gram; tüm miktarlar tam sayı. Ürün kartı, arama, pasifleştirme, giriş/düzeltme/sayım, negatif stok engeli, fiyat/stok geçmişi. Fiyat: TL, KDV ekle/dahil, varsayılan %15, değiştirilebilir oran ve ayrı net/KDV/toplam. Tek yönetici girişi/şifre değişimi ve CSRF korumalı formlar. Kabul: fiyat örnekleri, kesirli miktar reddi, çift gönderim, eşzamanlı son stok, rollback, stok mutabakatı, pasif/yeniden aktif ürün, geçmiş ve yedekten dönüş. F3 satış fişi bu kapsamda yoktur.
+
+
+## F3 onaylı kapsam — 10 Ekim 2026
+
+K19–K23 ve takip yanıtlarıyla satış, satır/fiş TL-yüzde indirim, müşteri lehine fiş kuruşu, elle KDV dahil renklendirme ücreti ve renk kodu, nakit/kart tamamlama, iade/iptal uygulandı. Renklendirilmiş boya iade/iptal edilemez. Sağlam iade stoğa döner, hasarlı iade para iadesiyle sınırlı kalır. Cari, parçalı ödeme ve POS entegrasyonu yoktur. Gerçek PostgreSQL/HTTP testleri tekrar, yarış, rollback, geçmiş fiyat, iade sınırı ve yedekten dönüşü kapsar. Sonuçlar progress.md'de; sıradaki iş F4 pilot hazırlığıdır.

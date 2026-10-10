@@ -1,0 +1,56 @@
+@page
+@model GurBoya.Web.Pages.Sales.CreateModel
+@using GurBoya.Web.Inventory
+@{ ViewData["Title"] = "Yeni satış"; }
+<a asp-page="Index">← Satışlar</a>
+<h1>Yeni satış</h1>
+<p>Ödeme alınana kadar satış tamamlanmaz ve stok değişmez. Bu ekran kapatılırsa kaydedilmemiş sepet silinir.</p>
+<form method="post">
+<div asp-validation-summary="All" class="error" role="alert"></div>
+<input asp-for="Input.OperationId" type="hidden" />
+<section class="panel"><h2>Ürün ekle</h2>
+<label>Ürün, marka, renk veya barkod ara<input asp-for="Search" maxlength="160" /></label>
+<button name="action" value="search" class="secondary">Ara</button>
+<label>Ürün (ilk 50 sonuç)<select asp-for="ProductId"><option value="0">Ürün seçin</option>
+@foreach (var p in Model.Products) { <option value="@p.Id">@p.Name · @p.Brand · @p.Color · @p.PackageLiters L · @p.Quantity @Pricing.UnitLabel(p.Unit) · @Pricing.Money(Pricing.Calculate(p.SalePrice, p.VatRate, p.VatIncluded).Gross) TL</option> }
+</select></label><button name="action" value="add">Sepete ekle</button></section>
+@for (var i = 0; i < Model.Input.Lines.Count; i++)
+{
+var line = Model.Input.Lines[i]; var product = Model.CartProducts.GetValueOrDefault(line.ProductId);
+<section class="panel"><h2>@(i + 1). @(product?.Name ?? "Ürün bulunamadı")</h2>
+<input asp-for="Input.Lines[i].ProductId" type="hidden" /><input asp-for="Input.Lines[i].Version" type="hidden" />
+<div class="form-grid"><label>Miktar (@Pricing.UnitLabel(product?.Unit ?? ""))<input asp-for="Input.Lines[i].Quantity" inputmode="numeric" /></label>
+<label>İndirim türü<select asp-for="Input.Lines[i].DiscountKind"><option value="TL">TL</option><option value="PERCENT">Yüzde</option></select></label>
+<label>Satır indirimi<input asp-for="Input.Lines[i].DiscountValue" inputmode="decimal" /></label></div>
+@if (product?.IsPaint == true)
+{
+@if (!line.IsTinted) { <button name="action" value="tint:@i" class="secondary">Renklendirme ücreti ekle</button> }
+<label class="check"><input asp-for="Input.Lines[i].IsTinted" />Renklendirildi — iade/iptal yapılamaz</label>
+@if (line.IsTinted)
+{
+<div class="form-grid"><label>Renk kodu<input asp-for="Input.Lines[i].Color" maxlength="100" /></label>
+<label>Satırın tamamı için renklendirme ücreti (KDV dahil TL)<input asp-for="Input.Lines[i].TintFee" inputmode="decimal" /></label></div>
+<p>Girdiğiniz ücrete yeniden KDV eklenmez. Boyanın KDV oranıyla net/KDV ayrımı yapılır. İndirim boya ve bu ek ücretin toplamına uygulanır.</p>
+}
+else { <input asp-for="Input.Lines[i].TintFee" type="hidden" /><input asp-for="Input.Lines[i].Color" type="hidden" /> }
+}
+else { <input asp-for="Input.Lines[i].TintFee" type="hidden" /><input asp-for="Input.Lines[i].Color" type="hidden" /> }
+<button name="action" value="remove:@i" class="secondary">Satırı çıkar</button></section>
+}
+@if (Model.Input.Lines.Count > 0)
+{
+<section class="panel"><h2>Fiş ve ödeme</h2><div class="form-grid">
+<label>Fiş indirimi türü<select asp-for="Input.DiscountKind"><option value="TL">TL</option><option value="PERCENT">Yüzde</option></select></label>
+<label>Fiş indirimi<input asp-for="Input.DiscountValue" inputmode="decimal" /></label>
+<label>Alınan ödeme<select asp-for="Input.PaymentMethod"><option value="">Nakit veya kart seçin</option><option value="CASH">Nakit</option><option value="CARD">Kart</option></select></label></div>
+<p>Fiş indirimi satır indirimlerinden sonra uygulanır. Kuruş altı fiş toplamı müşteri lehine aşağı yuvarlanır.</p>
+<button name="action" value="preview" class="secondary">Toplamı hesapla</button>
+@if (Model.Preview is { } sale)
+{
+<div class="table-wrap"><table><thead><tr><th>Ürün</th><th>Net</th><th>KDV</th><th>Toplam</th></tr></thead><tbody>
+@foreach (var line in sale.Lines) { <tr><td>@line.ProductName × @line.Quantity</td><td>@line.Net.ToString("N2") TL</td><td>@line.Vat.ToString("N2") TL</td><td>@line.Total.ToString("N2") TL</td></tr> }
+</tbody></table></div><p>Net: @sale.Net.ToString("N2") TL · KDV: @sale.Vat.ToString("N2") TL</p><h2>Ödenecek: <span id="sale-preview-total">@sale.Total.ToString("0.00")</span> TL</h2>
+}
+<button name="action" value="complete">Ödeme alındı — satışı tamamla</button></section>
+}
+</form>

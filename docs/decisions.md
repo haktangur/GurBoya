@@ -28,7 +28,7 @@ Belgeleri sürümleme yaklaşımı: project_context.md ve progress.md dahil büt
 
 ## Karar bekleyenler
 
-Kullanıcı arayüzü ve sunucu stack seçimi K13 ile kesinleşti. Kalanlar: Windows sürümü ve donanımı; iade ve renklendirme ücreti; satış indirimi/fiş yuvarlaması; cari ve tahsilat ihtiyacı; yedek saklama ve kayıp toleransı. PostgreSQL tekrar seçim beklemiyor.
+Kullanıcı arayüzü ve sunucu stack seçimi K13 ile kesinleşti. F3 iş kuralları aşağıdaki K19–K23 ve takip yanıtlarıyla netleşti. Kalanlar: Windows sürümü/donanımı, F4 rapor kapsamı, yedek saklama ve kayıp toleransı. PostgreSQL tekrar seçim beklemiyor.
 
 ## F1-B teknik uygulama seçimleri
 
@@ -46,4 +46,18 @@ DB yönetim hesabı, gurboya_migrator ve gurboya_app ayrıldı. Migration açık
 | K17 | Tek kişi için şifreli yönetici hesabı kullanılır. |
 | K18 | TL fiyat girişinde “KDV ekle” / “KDV dahil” seçilir; KDV hariç fiyat, KDV tutarı ve toplam ayrı görünür. Başlangıç oranı kullanıcı isteğiyle %15; oran ürün kartından değiştirilebilir. |
 
-F2 teknik ayrıntıları: marka/renk/kategori ürün üzerinde serbest metindir, önceden tanımlı seçenek listesi zorunlu değildir. Ambalaj/birim farkları ayrı ürün kartında izlenir; hareket oluşmuş kartın türü/birimi/litresi değişmez. Fiyatlar birim başına decimal/numeric dört ondalık basamakta, orta değer sıfırdan uzağa yuvarlanır; KDV hariç + KDV = dahil toplam korunur. Aynı KDV seçimi kartın alış ve satış fiyatına uygulanır. Fiş/satır indirimi ve satış toplamının kuruş yuvarlaması F3 öncesinde ayrıca netleştirilecek.
+F2 teknik ayrıntıları: marka/renk/kategori ürün üzerinde serbest metindir, önceden tanımlı seçenek listesi zorunlu değildir. Ambalaj/birim farkları ayrı ürün kartında izlenir; hareket oluşmuş kartın türü/birimi/litresi değişmez. Fiyatlar birim başına decimal/numeric dört ondalık basamakta, orta değer sıfırdan uzağa yuvarlanır; KDV hariç + KDV = dahil toplam korunur. Aynı KDV seçimi kartın alış ve satış fiyatına uygulanır. Fiş/satır indirimi ve satış kuruşları aşağıdaki F3 kararlarında netleştirildi.
+
+## F3 kullanıcı kararları — 10 Ekim 2026
+
+| Kimlik | Onaylanan kural |
+|---|---|
+| K19 | İndirim yüzde veya TL tutarı girilerek yapılabilmeli. Hem ürün satırında hem fiş toplamında kullanılacak. |
+| K20 | Gerekli yuvarlama en az düzeyde, yalnız kuruşlarda ve müşteri yararına yapılmalı. Satışta kuruş altı toplam aşağı, kısmi iadede yukarı yuvarlanır; toplam iade özgün bedeli aşamaz. |
+| K21 | Renklendirilmiş boya iadesi kabul edilmez. |
+| K22 | Kayıtlı boya türleri için “Renklendirme ücreti ekle” düğmesi ve elle ücret girişi isteniyor. Kullanıcı KDV eklenmiş ücreti elle girer; yeniden KDV eklenmez. Satış satırının tamamına ek tutar olarak uygulanır. |
+| K23 | Ödeme uygulama dışında yapılır; uygulama satışın tamamlanma durumunu ve nakit/kart bilgisini tutar. POS entegrasyonu istenmiyor. Satış yalnız ödeme alındığında nakit veya kart seçilerek tamamlanır; öncesinde stok değişmez. |
+
+Takip yanıtları: indirim her iki düzeyde; renklendirme ücreti KDV dahil; sağlam iade stoğa döner, hasarlı iade para iadesi oluşturur ama satılabilir stoğu artırmaz. Ödeme sonrası tamamlama ve müşteri lehine kuruş kuralları onaylandı.
+
+F3 uygulama ayrıntıları: satır indirimi boya/ürün ve varsa renklendirme ücreti toplamına, fiş indirimi satır indirimlerinden sonra oransal uygulanır. Fiş toplamı yalnız kuruş altı kadar aşağı yuvarlanır; kuruşlar en büyük kalan yöntemiyle satırlara dağıtılır. Böylece her satırda ayrı ayrı aşağı yuvarlamanın biriken kaybı önlenir. Net iki basamakta en yakına, KDV toplam−net olarak hesaplanır. İadede toplam iade miktarının özgün satır tutarındaki payı yukarı yuvarlanır; önceki iadeler düşülür, net/KDV kalan bileşenleri aşmaz. Renklendirme tutarı sıfır olsa da renklendirildi işareti iade ve iptali engeller. İptal kalan satırların tamamını sağlam olarak stoğa döndüren değişmez ters belgedir; renklendirilmiş satır varsa bütün iptal reddedilir. Ücret kartın fiyatını kalıcı değiştirmez. Cari, veresiye, parçalı tahsilat ve ödeme cihazı entegrasyonu eklenmez.

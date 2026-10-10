@@ -1,0 +1,10 @@
+@page
+@model GurBoya.Web.Pages.Sales.IndexModel
+@{ ViewData["Title"] = "Satışlar"; }
+<div class="heading"><h1>Satışlar</h1><a class="button" asp-page="Create">Yeni satış</a></div>
+<p>Tamamlanan satışlar ve iade tutarları. Ödeme uygulama dışında alınır.</p>
+<div class="table-wrap"><table><thead><tr><th>Satış</th><th>Tarih</th><th>Ödeme</th><th>Satış toplamı</th><th>İade</th></tr></thead><tbody>
+@foreach (var s in Model.Sales) { <tr><td><a asp-page="Details" asp-route-id="@s.Id">#@s.Id · Tamamlandı</a></td><td>@GurBoya.Web.Pages.Products.DetailsModel.LocalTime(s.OccurredAt)</td><td>@(s.PaymentMethod == "CASH" ? "Nakit" : "Kart")</td><td>@s.Total.ToString("N2") TL</td><td>@Model.Returned.GetValueOrDefault(s.Id).ToString("N2") TL</td></tr> }
+</tbody></table></div>
+@if (Model.Sales.Count == 0) { <p>Henüz tamamlanmış satış yok.</p> }
+<nav class="pager">@if (Model.ListPage > 1) { <a asp-route-ListPage="@(Model.ListPage - 1)">Önceki</a> }<span>Sayfa @Model.ListPage</span>@if (Model.HasNext) { <a asp-route-ListPage="@(Model.ListPage + 1)">Sonraki</a> }</nav>

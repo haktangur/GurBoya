@@ -1,6 +1,6 @@
 # GürBoya — PostgreSQL veritabanı taslağı
 
-Durum: F2 ürün/stok ve kullanıcı şeması eklendi. F2 uygulanan model bölümü güncel kaynaktır; sonraki fazların ilişkisel modeli öneridir. İş kuralları ilgili fazdan önce netleştirilecek. F1-A yalnızca veritabanı altyapısını kurar; bu belgedeki bütün tabloları oluşturmaz.
+Durum: F2 ürün/stok/kullanıcı ve F3 satış/iade şemaları eklendi. F3 uygulanan model aşağıdadır; eski F3 öneri bölümü tarihsel taslaktır. F2 uygulanan model bölümü güncel kaynaktır; sonraki fazların ilişkisel modeli öneridir. İş kuralları ilgili fazdan önce netleştirilecek. F1-A yalnızca veritabanı altyapısını kurar; bu belgedeki bütün tabloları oluşturmaz.
 
 ## F2 uygulanan model
 
@@ -119,3 +119,18 @@ Kaynaklar (8 Ekim 2026): [PostgreSQL satır kilitleri](https://www.postgresql.or
 scripts/db/roles.sql transaction içinde roller ve izinleri hazırlar; mevcut volume üzerinde ayrıca çalıştırılabilir. Yeniden çalıştırma parola ayarlarını .env değerlerine getirir, veri/migration silmez. Bu işlem yalnızca projeye ait DB/rollerde kullanılmalıdır. Parola değişiminden sonra web konteynerini yeniden oluştur; .env değişikliği tek başına PostgreSQL parolasını değiştirmez.
 
 İlk InitialInfrastructure migration'ı boş modelin sürümlü başlangıcıdır; yalnızca infrastructure.__EFMigrationsHistory kaydı oluşur. İş tablosu yoktur. Sonraki şema değişiklikleri yeni EF migration dosyalarıyla eklenir. Web hesabı normal açılışta geçmişi okuyup eksik migration varsa hazır olmadığını bildirir. Bakım hizmeti --migrate ile ayrı hesapta MigrateAsync çağırır; üretim bakımından önce incelenmiş migration ve doğrulanmış yedek gerekir.
+
+
+## F3 uygulanan model — 10 Ekim 2026
+
+- app.sales: değişmez satış başlığı; identity numara, UUID operation, kullanıcı/zaman, CASH/CARD, fiş indirim türü/girdisi, net/KDV/toplam.
+- app.sale_lines: sıra, ürün FK, ad/marka/renk/birim/litre/fiyat/KDV snapshot'ı, tam sayı miktar, renklendirildi ve KDV dahil satır ek ücreti, satır indirimi/fiş payı/kuruş dağıtım farkı, net/KDV/toplam.
+- app.sales_returns: kaynak satış FK, RETURN/CANCEL, UUID operation, gerekçe, kullanıcı/zaman, dışarıdaki para iadesi CASH/CARD, net/KDV/toplam.
+- app.return_lines: kaynak satış satırı ve iade başlığı FK; miktar, satılabilir stoğa dönüş miktarı, özgün satıştan hesaplanan net/KDV/toplam.
+- app.stock_movements: nullable SaleLineId/ReturnLineId ve benzersiz kaynak indeksleri; SALE negatif, RETURN pozitif. Stok dönüşü 0 ise hareket oluşmaz. Önceki hareketler ve kısıtlar korunur.
+
+Satış/iade tutarları numeric(18,2), ürün fiyat snapshot'ı numeric(18,4); oransal indirim payları ve yuvarlama farkı numeric(28,12). Hesaplar decimal; fiş indirimi satır indirimlerinden sonra dağıtılır. Toplam yalnız kuruş altı kadar aşağı yuvarlanır; satır toplamları en büyük kalan dağıtımıyla fişe eşittir. Net iki basamak en yakına, KDV=toplam−net. İadede kaynak satır toplamı×birikimli iade miktarı/satış miktarı yukarı kuruşa tamamlanır, önceki iade tutarı düşülür ve özgün toplam aşılmaz. Net/KDV iadeleri de özgün bileşenleri aşmaz. Ücretsiz satış/iade desteklenir.
+
+Satış/stok UUID replay ve ürün sürümü kontrolüyle korunur. İade başlığı eklenirken kaynak satış DB satırı kilitlenir. Deferred constraint trigger'ları satır/başlık tutarlarını, operation sonucunu, aynı satışa ait iade satırını, birikimli miktar/tutar sınırını, renklendirilmiş iade yasağını ve stok kaynağını transaction sonunda doğrular. Geçmiş UPDATE/DELETE engellenir; operation kaydı bulunan tamamlanmış belgeye yeni satır eklenemez. İptal kalan satırların tümüne ters belge oluşturur; kayıtları silmez.
+
+Yeni migration `20261010175529_SalesAndReturns`; uygulanmış üç eski migration aynen korunur. Bu model kalıcı DRAFT, cari, tahsilat mahsup tablosu veya pigment tablosu içermez. Bu bölüm ve kod, yukarıdaki uygulanmamış F3 öneri tablosundan önceliklidir.

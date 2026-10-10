@@ -1,0 +1,46 @@
+@page "{id:long}"
+@model GurBoya.Web.Pages.Sales.DetailsModel
+@using GurBoya.Web.Inventory
+@{ ViewData["Title"] = $"Satış #{Model.Sale.Id}"; var sale = Model.Sale; }
+<a asp-page="Index">← Satışlar</a>
+<h1>Satış #@sale.Id</h1><p>Tamamlandı · @GurBoya.Web.Pages.Products.DetailsModel.LocalTime(sale.OccurredAt) · @(sale.PaymentMethod == "CASH" ? "Nakit" : "Kart")</p>
+@if (sale.Lines.All(l => Model.Remaining(l) == 0)) { <p class="out">Satışın tamamı iade/iptal edildi.</p> }
+<div class="table-wrap"><table><thead><tr><th>Ürün</th><th>Miktar / kalan</th><th>Birim fiyat</th><th>Renklendirme</th><th>İndirim</th><th>Net / KDV</th><th>Toplam</th></tr></thead><tbody>
+@foreach (var l in sale.Lines)
+{
+<tr data-sale-line="@l.Id"><td>@l.ProductName<small>@l.Brand · @l.Color · @l.PackageLiters L</small></td><td>@l.Quantity / @Model.Remaining(l) @Pricing.UnitLabel(l.Unit)</td><td>@Pricing.Money(l.UnitPrice) TL<small>@(l.VatIncluded ? "KDV dahil" : "KDV hariç")</small></td><td>@(l.IsTinted ? "Renklendirildi · iade yok" : "Yok")<small>@l.TintFee.ToString("N2") TL</small></td><td>Satır: @Pricing.Money(l.LineDiscount) TL<small>Fiş payı: @Pricing.Money(l.ReceiptDiscount) TL</small></td><td>@l.Net.ToString("N2") / @l.Vat.ToString("N2") TL<small>%@l.VatRate.ToString("0.##") KDV</small></td><td>@l.Total.ToString("N2") TL</td></tr>
+}
+</tbody></table></div>
+<section class="panel"><p>Net: @sale.Net.ToString("N2") TL · KDV: @sale.Vat.ToString("N2") TL</p><h2>Satış toplamı: <span id="sale-total">@sale.Total.ToString("0.00")</span> TL</h2><p>İade toplamı: <span id="refund-total">@Model.Returns.Sum(r => r.Total).ToString("0.00")</span> TL</p></section>
+@if (sale.Lines.Any(l => Model.Remaining(l) > 0 && !l.IsTinted))
+{
+<form method="post" class="panel"><h2>İade / iptal</h2>
+<div asp-validation-summary="All" class="error" role="alert"></div><input asp-for="Input.OperationId" type="hidden" />
+<p>Sağlam ürünün stoğa dönecek miktarını girin. Hasarlı ürün için stoğa dönüş 0 olmalı. İade bedeli özgün indirimli satıştan hesaplanır; fiş bedelini aşmaz.</p>
+@for (var i = 0; i < Model.Input.Lines.Count; i++)
+{
+var l = sale.Lines.SingleOrDefault(l => l.Id == Model.Input.Lines[i].SaleLineId);
+<input asp-for="Input.Lines[i].SaleLineId" type="hidden" />
+@if (l != null && !l.IsTinted && Model.Remaining(l) > 0)
+{
+<h3>@l.ProductName · kalan @Model.Remaining(l) @Pricing.UnitLabel(l.Unit)</h3>
+<div class="form-grid"><label>İade miktarı<input asp-for="Input.Lines[i].Quantity" inputmode="numeric" /></label><label>Satılabilir stoğa dönüş<input asp-for="Input.Lines[i].RestockQuantity" inputmode="numeric" /></label></div>
+}
+else { <input asp-for="Input.Lines[i].Quantity" type="hidden" /><input asp-for="Input.Lines[i].RestockQuantity" type="hidden" /> }
+}
+<label>Açıklama<input asp-for="Input.Reason" maxlength="300" required /></label>
+<label>Para iadesi yöntemi<select asp-for="Input.RefundMethod"><option value="CASH">Nakit</option><option value="CARD">Kart</option></select></label>
+<label class="check"><input asp-for="Input.Confirm" />İade/iptali ve uygulama dışında yapılan para iadesini onaylıyorum.</label>
+<button name="action" value="return">Seçilen miktarları iade et</button>
+@if (sale.Lines.All(l => !l.IsTinted || Model.Remaining(l) == 0))
+{ <p>İptal, kalan tüm miktarları sağlam olarak stoğa geri koyar. Hasarlı ürün için yukarıdaki iade alanlarını kullanın.</p><button name="action" value="cancel" class="secondary">Kalan satışın tamamını iptal et ve stoğa döndür</button> }
+</form>
+}
+else { <div asp-validation-summary="All" class="error" role="alert"></div> }
+<h2>İade / iptal geçmişi</h2>
+@foreach (var r in Model.Returns)
+{
+<section class="panel"><h3>@(r.Kind == "CANCEL" ? "İptal" : "İade") #@r.Id · @r.Total.ToString("N2") TL</h3><p>@GurBoya.Web.Pages.Products.DetailsModel.LocalTime(r.OccurredAt) · @(r.RefundMethod == "CASH" ? "Nakit" : "Kart") · @r.Reason</p>
+@foreach (var l in r.Lines) { <p>@sale.Lines.Single(s => s.Id == l.SaleLineId).ProductName: @l.Quantity iade, @l.RestockQuantity stoğa dönüş · @l.Total.ToString("N2") TL</p> }
+</section>
+}

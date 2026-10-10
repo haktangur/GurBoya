@@ -1,4 +1,5 @@
 using GurBoya.Web.Inventory;
+using GurBoya.Web.Sales;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : Ident
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<PriceChange> PriceChanges => Set<PriceChange>();
     public DbSet<OperationRecord> Operations => Set<OperationRecord>();
+
+    public DbSet<Sale> Sales => Set<Sale>();
+    public DbSet<SaleLine> SaleLines => Set<SaleLine>();
+    public DbSet<SalesReturn> SalesReturns => Set<SalesReturn>();
+    public DbSet<ReturnLine> ReturnLines => Set<ReturnLine>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,7 +42,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : Ident
             entity.ToTable("stock_movements", table =>
             {
                 table.HasCheckConstraint("ck_movement_delta", "(\"Delta\" <> 0 OR \"Kind\" = 'COUNT') AND abs(\"Delta\"::numeric) <= 1000000000");
-                table.HasCheckConstraint("ck_movement_kind", "(\"Kind\" = 'RECEIPT' AND \"Delta\" > 0) OR \"Kind\" IN ('ADJUSTMENT','COUNT')");
+                table.HasCheckConstraint("ck_movement_kind", "(\"Kind\" = 'RECEIPT' AND \"Delta\" > 0) OR (\"Kind\" = 'SALE' AND \"Delta\" < 0) OR (\"Kind\" = 'RETURN' AND \"Delta\" > 0) OR \"Kind\" IN ('ADJUSTMENT','COUNT')");
                 table.HasCheckConstraint("ck_movement_reason", "length(trim(\"Reason\")) > 0");
             });
             entity.HasIndex(movement => movement.OperationId).IsUnique();
@@ -52,12 +58,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : Ident
             entity.HasOne<IdentityUser>().WithMany().HasForeignKey(change => change.ActorId).OnDelete(DeleteBehavior.Restrict);
         });
         modelBuilder.Entity<OperationRecord>().ToTable("operations");
+        SalesModel.Configure(modelBuilder);
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
         {
             foreach (var property in entity.GetProperties().Where(property => property.ClrType == typeof(decimal)))
             {
-                property.SetPrecision(18);
-                property.SetScale(4);
+                if (property.GetPrecision() is null) { property.SetPrecision(18); property.SetScale(4); }
             }
         }
     }
