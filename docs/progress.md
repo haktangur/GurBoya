@@ -209,3 +209,13 @@ Yedek: ayrı opsiyonel Compose servisi, sabit PostgreSQL imajı, saatlik custom 
 F4 **tamamlanmadı**. Windows kurulumu kullanıcı isteğiyle ertelendi; Windows/AMD64, OS açılışı, gerçek internet kesintisi, Windows geri yükleme ve kullanıcı görsel kabulü yapılmadı. Bu oturumda bilgisayar envanterinde bağlı browser sağlayıcısı yoktu; native tarayıcıyla kontrol yapılmadı. Mac HTTP testleri görsel kabul sayılmaz. F5 başlatılmadı.
 
 Belgeler ve devam promptu bu duruma güncellendi. Sıradaki adım kullanıcı F3/F4 ekran geri bildirimi, ardından hedef bilgisayara erişim olduğunda Windows gereksinimleri ve gerçek pilot kontrolleri. Değişiklikler mevcut çalışma dalına normal push ile gönderilir; kesin uzak kimlik teslimde bildirilir.
+
+## Görsel iyileştirme — 11 Ekim 2026
+
+Kullanıcı premium kullanım hissi ve margin/padding düzenlemesi istedi. Ortak CSS, ana menü, başlangıç ve giriş ekranı yenilendi: sıcak nötr/yeşil palet, panel/tablo/form boşlukları, aktif menü, erişim kartları, klavye odakları, içeriğe geç bağlantısı, dar ekran ve azaltılmış hareket kuralları. Kontrast incelemesinde yardımcı metin ve bakır vurgu koyulaştırıldı. Yeni bağımlılık, JS, harici font/CDN, iş kuralı veya migration değişikliği yok.
+
+`bash scripts/test-app.sh` çıkış 0: Razor derleme ve F1-B/F2/F3/F4 HTTP regresyonları geçti. İzole proje `gurboya-f1b-288433c83c49`, kanıt `.tmp/f1-b.5LMZBn`, günlük `.tmp/ui-refresh-tests.log`; test volume'ları korundu. Son salt CSS boşluk/kontrast düzeltmeleri için ayrıca imaj derlendi; iş akışı testleri tekrar edilmedi. Bir belge düzenleme komutu UTF-8 okuma hatasıyla değişiklik yapmadan durdu; patch ile tamamlandı.
+
+Brave erişimi bilgisayar kullanım aracında onaylanmadı; görsel tarayıcı incelemesi yapılamadı. HTTP testleri görsel kabul değildir. Kullanıcının yeni tasarım geri bildirimi beklenir. F4 Windows/AMD64, OS açılışı ve gerçek çevrimdışı kabul beklemeye devam eder; F5 iş modülleri açılmadı. Mevcut veri/.env/hesap/volume/migration korundu. Değişiklikler aynı çalışma dalında commit ve normal push ile teslim edilir, uzak kimlik teslimde doğrulanır.
+
+Yerel web son imajla yenilendi; readiness ready, sunulan CSS ile kaynak dosya birebir eşleşti, başlangıç/giriş HTML yanıtları doğrulandı. Son derleme günlüğü `.tmp/ui-refresh-build-final.log`.

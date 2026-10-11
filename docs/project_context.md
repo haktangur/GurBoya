@@ -39,3 +39,5 @@ Son sohbet kapanışı: F3 ilk devir commit’i `8d82e20fcfa7fa052ddcc023fae571a
 K24–K26 ile Excel/yazdırma kapsam dışında; Windows kurulumu erişim gelene kadar ertelendi. Yerel saatlik yedek, 30 gün saklama seçildi. Raporlar /Reports ve /Reports/Stock altında; tarih sınırları Europe/Istanbul, iade kendi işlem gününde ve kendi nakit/kart yöntemiyle sayılır. Şema değişmedi. Yedek servisi compose.backup.yaml ile isteğe bağlı etkinleştirilir; Mac normal kurulumunda saatlik servis etkinleştirilmedi, izole testte doğrulandı. İşletim ve kurtarma planı [F4 rehberinde](f4_operations.md).
 
 F4 tamamlanmadı: Windows kurulumu/donanım, OS açılışı, gerçek internet kesintisi ve görsel kullanıcı kabulü bekliyor. F3 ekranları kullanıcı tarafından henüz kontrol edilmedi. F5 başlatılmadı.
+
+11 Ekim: Kullanıcı mevcut kullanım hissini iyileştirmek için premium görsel düzenleme istedi. Ortak menü, tipografi, margin/padding, form/tablo/kartlar, başlangıç ve giriş sayfaları yenilendi. Bu mevcut arayüzün iyileştirmesidir; F5 iş modülleri açılmadı. Tarayıcı erişimi onaylanmadığından görsel kabul bekliyor; F4 Windows/OS/çevrimdışı kabul kapıları açık kalır.

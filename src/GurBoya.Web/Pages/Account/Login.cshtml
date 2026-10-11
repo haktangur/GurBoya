@@ -1,11 +1,13 @@
 @page
 @model GurBoya.Web.Pages.Account.LoginModel
 @{ ViewData["Title"] = "Giriş"; }
-<h1>Mağazanıza giriş yapın.</h1>
+<div class="login-shell"><section class="login-intro"><p class="eyebrow">GÜRBOYA</p><h2>Mağazanızın günlük<br />akışına hoş geldiniz.</h2><p>Ürünlerden satışlara, ihtiyaç duyduğunuz her şey aynı çalışma alanında.</p></section><section class="login-form"><h1>Tekrar hoş geldiniz.</h1>
 <p>Yönetici şifrenizi girin.</p>
 @if (Model.Error is not null) { <p class="error" role="alert">@Model.Error</p> }
-<form method="post" class="panel narrow">
+<form method="post" class="login-fields">
     <label for="Password">Şifre</label>
     <input id="Password" name="Password" type="password" autocomplete="current-password" required autofocus />
     <button type="submit">Giriş yap</button>
 </form>
+
+</section></div>

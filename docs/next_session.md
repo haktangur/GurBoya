@@ -21,3 +21,7 @@ Yerel URL http://localhost:5080. `.env`, hesap, işletme verisi ve volume'lar ko
 `bash scripts/test-app.sh` F1-B/F2/F3 ve F4 rapor senaryolarını, `bash scripts/test-backup.sh` gerçek dump/restore ve yedek yaşam döngüsünü izole DB'lerde sınar. Kanıtlar [progress.md](progress.md). İşletme verisi test fixture'ı değildir. Test volume'ları silinmez.
 
 Sıradaki iş kullanıcı F3/F4 ekran geri bildirimi ve hedef Windows erişimi geldiğinde donanım/OS gereksinimlerini doğrulamaktır. Windows/AMD64, OS açılışı, gerçek internet kesintisi, Windows restore ve görsel kabul yapılmadan tamamlandı sayılmaz. Kullanıcının Windows ertelemesini kaldırdığını varsayma. Normal çalışma dalına commit/push sonrası uzak kimliği doğrula.
+
+## Görsel iyileştirme devamı
+
+11 Ekim görsel iyileştirmesi: ortak CSS, menü, başlangıç ve giriş ekranı yenilendi. Kullanıcıdan yeni görünüm geri bildirimi alınmalı. Brave görsel kontrol erişimi onaylanmadı; görsel test/kabul yapılmış sayılmaz. F4 Windows ertelemesi devam ediyor.

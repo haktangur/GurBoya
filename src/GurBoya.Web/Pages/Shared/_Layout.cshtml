@@ -6,16 +6,18 @@
     <title>@ViewData["Title"] · GürBoya</title>
     <link rel="stylesheet" href="~/site.css" asp-append-version="true" />
 </head>
+@{ var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? ""; }
 <body>
-    <header><a class="brand" asp-page="/Index">GürBoya<span>Boya ve hırdavat</span></a><nav aria-label="Ana menü">
+    <a class="skip-link" href="#main-content">İçeriğe geç</a>
+    <header class="app-header"><div class="header-inner"><a class="brand" asp-page="/Index"><span class="brand-mark" aria-hidden="true">G</span><span class="brand-name">GürBoya<small>Boya ve hırdavat</small></span></a><nav class="main-nav" aria-label="Ana menü">
     @if (User.Identity?.IsAuthenticated == true)
     {
-        <a asp-page="/Products/Index">Ürünler ve stok</a><a asp-page="/Sales/Index">Satışlar</a><a asp-page="/Reports/Index">Raporlar</a><a asp-page="/Account/Password">Şifre</a>
+        <a asp-page="/Products/Index" aria-current="@(currentPage.StartsWith("/Products/", StringComparison.Ordinal) ? "page" : null)">Ürünler ve stok</a><a asp-page="/Sales/Index" aria-current="@(currentPage.StartsWith("/Sales/", StringComparison.Ordinal) ? "page" : null)">Satışlar</a><a asp-page="/Reports/Index" aria-current="@(currentPage.StartsWith("/Reports/", StringComparison.Ordinal) ? "page" : null)">Raporlar</a><a asp-page="/Account/Password" aria-current="@(currentPage.StartsWith("/Account/Password", StringComparison.Ordinal) ? "page" : null)">Şifre</a>
         <form method="post" asp-page="/Account/Logout"><button class="secondary">Çıkış</button></form>
     }
     else { <a asp-page="/Account/Login">Giriş yap</a> }
-    </nav></header>
-    <main>@RenderBody()</main>
-    <footer>GürBoya · Mağaza yönetimi</footer>
+    </nav></div></header>
+    <main id="main-content">@RenderBody()</main>
+    <footer><span>GürBoya · Mağaza yönetimi</span><span>Ürün, stok ve satış bir arada.</span></footer>
 </body>
 </html>

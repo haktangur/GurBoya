@@ -3,9 +3,12 @@
 @{
     ViewData["Title"] = "Başlangıç";
 }
-<p class="eyebrow">MAĞAZA YÖNETİMİ</p>
-<h1>GürBoya’ya hoş geldiniz.</h1>
-<p class="intro">Ürünlerinizi ve mağaza işlemlerinizi tek yerden takip etmek için hazırlanıyoruz.</p>
+<section class="hero">
+<p class="eyebrow">GÜRBOYA · MAĞAZA YÖNETİMİ</p>
+<h1>Mağazanızın her rengi,<br />tek bir yerde.</h1>
+<p class="intro">Stoklarınızı takip edin, satışlarınızı tamamlayın ve günün hareketlerini kolayca görün.</p>
+<div class="hero-actions"><a class="button" asp-page="/Sales/Create">Yeni satış oluştur <span aria-hidden="true">↗</span></a><a class="button secondary" asp-page="/Products/Index">Ürünleri görüntüle</a></div>
+</section>
 <section class="status @(Model.Status.Ready ? "ready" : "unavailable")" role="status">
     <span class="indicator" aria-hidden="true"></span>
     <div><h2>@(Model.Status.Ready ? "Sistem hazır" : "Bağlantı bekleniyor")</h2><p>@Model.Status.Message</p></div>
@@ -14,4 +17,9 @@
         <a class="button" asp-page="/Index">Yeniden dene</a>
     }
 </section>
-<section class="next"><h2>Ürünlerinizi ve stoklarınızı yönetin</h2><p>Marka, ambalaj, renk ve fiyatları elle girin; stok girişlerini ve değişiklik geçmişini takip edin.</p><a class="button" asp-page="/Products/Index">Ürünler ve stok</a></section>
+<div class="workspace-heading"><h2>Mağazanız için çalışma alanı</h2><span>Günlük işlemlere hızlı erişim</span></div>
+<div class="workspace-grid">
+<a class="workspace-card" asp-page="/Products/Index"><span class="card-number">01 / ENVANTER</span><h2>Ürünler ve stok</h2><p>Ürün kartları, güncel fiyatlar ve stok hareketleri elinizin altında.</p><span class="card-link">Ürünlere git →</span></a>
+<a class="workspace-card" asp-page="/Sales/Index"><span class="card-number">02 / SATIŞ</span><h2>Satış işlemleri</h2><p>Satışlarınızı görüntüleyin, yeni satış oluşturun ve iadeleri takip edin.</p><span class="card-link">Satışlara git →</span></a>
+<a class="workspace-card" asp-page="/Reports/Index"><span class="card-number">03 / RAPORLAR</span><h2>Günün görünümü</h2><p>Satış ve iadeleri karşılaştırın. Mevcut ve biten stokları inceleyin.</p><span class="card-link">Raporları aç →</span></a>
+</div>

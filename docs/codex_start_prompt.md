@@ -9,5 +9,7 @@ F1-A/F1-B/F2/F3 teknik olarak tamamlandı. F4 raporları ve saatlik yerel yedek 
 
 K24–K26: Excel/yazdırma yok; temel stok, tarih aralıklı satış/iade/fark, nakit/kart ve ürün miktarı raporları hazır. Yedek hedef bilgisayarda yerel, saatlik, 30 gün saklanır; yaklaşık bir saatlik kayıp hedefi son yedek başarılı ve servis/DB çalışırken geçerlidir. Aynı disk arızasına karşı harici kopya seçilmedi. compose.backup.yaml servisi Mac normal kurulumunda etkinleştirilmedi; test edildi, hedef Windows için hazırdır. F2/F3 iş kurallarını tekrar sorma ve modülleri baştan yazma.
 
+11 Ekim görsel iyileştirmesi: ortak CSS, menü, başlangıç ve giriş ekranı yenilendi. Kullanıcıdan yeni görünüm geri bildirimi alınmalı. Brave görsel kontrol erişimi onaylanmadı; görsel test/kabul yapılmış sayılmaz. F4 Windows ertelemesi devam ediyor.
+
 Varsa kullanıcının F3/F4 ekran kontrolü sonucunu al. Windows ertelemesini kaldırdığını varsayma; hedef erişimi geldiğinde sürüm/donanım/ACL, gerçek açılış/internet kesintisi ve restore pilotunu uygula. Uygun testleri çalıştır, belgeleri docs/ altında güncelle, sır/diff kontrolü yap, mantıksal commit'lerle çalışma dalına normal push et ve uzak kimliği doğrula. Push yetkilidir; force push, volume silme ve canlı DB üstüne restore yoktur.
 ```
